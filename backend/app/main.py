@@ -10,7 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageOps
-import io
 import logging
 import sys
 import os
@@ -85,18 +84,37 @@ def photo_thumbnail(name: str):
     """Small cached preview for tables and map popups. Falls back to generating on the fly."""
     if not THUMB_NAME.match(name):
         raise HTTPException(status_code=404, detail="Not found")
+
     thumbs_dir = photo_storage.thumbs_dir()
     os.makedirs(thumbs_dir, exist_ok=True)
-    thumb = os.path.join(thumbs_dir, os.path.splitext(name)[0] + ".jpg")
+
+    thumb = os.path.join(
+        thumbs_dir,
+        os.path.splitext(name)[0] + ".jpg"
+    )
+
     if not os.path.exists(thumb):
-        source_bytes = photo_storage.read_bytes(name)
-        if source_bytes is None:
+        source_path = photo_storage.read_to_tempfile(name)
+
+        if source_path is None:
             raise HTTPException(status_code=404, detail="Photo not found")
-        with Image.open(io.BytesIO(source_bytes)) as img:
-            img = ImageOps.exif_transpose(img).convert("RGB")
-            img.thumbnail((THUMB_SIZE, THUMB_SIZE), Image.Resampling.LANCZOS)
-            img.save(thumb, "JPEG", quality=82)
-    return FileResponse(thumb, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+        try:
+            with Image.open(source_path) as img:
+                img = ImageOps.exif_transpose(img).convert("RGB")
+                img.thumbnail(
+                    (THUMB_SIZE, THUMB_SIZE),
+                    Image.Resampling.LANCZOS
+                )
+                img.save(thumb, "JPEG", quality=82)
+        finally:
+            photo_storage.cleanup_tempfile(source_path)
+
+    return FileResponse(
+        thumb,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=86400"}
+    )
 
 
 # Register Health Endpoints

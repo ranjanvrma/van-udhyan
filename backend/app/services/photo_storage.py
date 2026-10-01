@@ -139,23 +139,59 @@ def read_bytes(name: str) -> Optional[bytes]:
 def read_to_tempfile(name: str) -> Optional[str]:
     """
     Returns a local file path containing the photo bytes.
-    In local mode this is the actual stored file. In supabase mode a temp copy is created.
-    Caller is responsible for deleting temp files it created; local-mode paths must NOT be deleted.
+    In local mode this is the actual stored file.
+    In Supabase mode the photo is streamed to a temporary file.
     """
     if not is_safe_name(name):
         return None
+
     if is_local():
         path = os.path.join(uploads_dir(), name)
         return path if os.path.exists(path) else None
-    data = read_bytes(name)
-    if data is None:
-        return None
+
     import tempfile
-    fd, tmp_path = tempfile.mkstemp(suffix=os.path.splitext(name)[1] or ".jpg", prefix="dl_")
+
+    fd, tmp_path = tempfile.mkstemp(
+        suffix=os.path.splitext(name)[1] or ".jpg",
+        prefix="dl_"
+    )
     os.close(fd)
-    with open(tmp_path, "wb") as f:
-        f.write(data)
-    return tmp_path
+
+    try:
+        with _session_lock:
+            with _session.get(
+                _supabase_object_url(name),
+                headers=_supabase_headers(),
+                timeout=60,
+                stream=True,
+            ) as resp:
+
+                if resp.status_code != 200:
+                    return None
+
+                with open(tmp_path, "wb") as f:
+                    for chunk in resp.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            f.write(chunk)
+
+        return tmp_path
+
+    except Exception:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        raise
+
+def cleanup_tempfile(path: str) -> None:
+    """Delete a temporary downloaded photo."""
+    if not path or is_local():
+        return
+
+    try:
+        os.remove(path)
+    except OSError:
+        pass
 
 
 def delete(name: str) -> bool:
