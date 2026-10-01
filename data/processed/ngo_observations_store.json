@@ -1,0 +1,1712 @@
+[
+  {
+    "id": 228,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-9b92de38382948e4b62493a81c551c6e",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-09-02",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_9b92de38382948e4b62493a81c551c6e.jpeg",
+    "latitude": 18.518511,
+    "longitude": 73.7802,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null
+  },
+  {
+    "id": 229,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-0b04bed64a8547ad8129d9a88aad265b",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-09-02",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_0b04bed64a8547ad8129d9a88aad265b.jpeg",
+    "latitude": 18.518511,
+    "longitude": 73.7802,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null
+  },
+  {
+    "id": 230,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-a4d803b15b294e38902481856c5ee95c",
+    "taxon_id": null,
+    "scientific_name": "Ficus religiosa",
+    "common_name": "Peepal tree",
+    "observed_on": "2026-09-02",
+    "quality_grade": "research",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_a4d803b15b294e38902481856c5ee95c.jpeg",
+    "latitude": 18.518511,
+    "longitude": 73.7802,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null,
+    "identification_status": "verified",
+    "verification_notes": null
+  },
+  {
+    "id": 231,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-b6f42077458848d4ada983a11b9371cb",
+    "taxon_id": null,
+    "scientific_name": "Senna occidentalis",
+    "common_name": "Septicweed",
+    "observed_on": "2026-09-28",
+    "quality_grade": "research",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_b6f42077458848d4ada983a11b9371cb.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null,
+    "identification_status": "verified",
+    "verification_notes": null
+  },
+  {
+    "id": 232,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-a3f0190a8124450cb9ff29a8518c487e",
+    "taxon_id": null,
+    "scientific_name": "Senna occidentalis",
+    "common_name": "Septicweed",
+    "observed_on": "2026-09-28",
+    "quality_grade": "research",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_a3f0190a8124450cb9ff29a8518c487e.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null,
+    "identification_status": "verified",
+    "verification_notes": null
+  },
+  {
+    "id": 233,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-2bea12b8a80adbe9ccb9bda594d84488",
+    "taxon_id": null,
+    "scientific_name": "Moringa oleifera",
+    "common_name": "Moringa",
+    "observed_on": "2026-09-28",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_2bea12b8a80adbe9ccb9bda594d84488.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null,
+    "photo_sha256": "2bea12b8a80adbe9ccb9bda594d844884ebe7d8cde60dc64422f9270f9f9146f",
+    "photo_dhash": "c93933b1e02d6a76",
+    "identification_status": "corrected",
+    "verification_notes": null
+  },
+  {
+    "id": 234,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-ae2f3186164edc98a7ce9975e04f7b87",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-06-28",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_ae2f3186164edc98a7ce9975e04f7b87.jpg",
+    "latitude": 18.51871,
+    "longitude": 73.780211,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": null,
+    "photo_sha256": "ae2f3186164edc98a7ce9975e04f7b87b718a29ab1c4c4b43853eab880d14c6b",
+    "photo_dhash": "ef7fd3eb8abeaea6"
+  },
+  {
+    "id": 235,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-947940b97c44702e67aaffc0eaf274af",
+    "taxon_id": null,
+    "scientific_name": "Ficus religiosa",
+    "common_name": "Peepal / Sacred fig",
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_947940b97c44702e67aaffc0eaf274af.jpg",
+    "latitude": 18.518673,
+    "longitude": 73.780205,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_101342AMByGPSMapCamera.jpg'",
+    "photo_sha256": "947940b97c44702e67aaffc0eaf274af08e6c35c58a1fe778c8dd737e75e6f04",
+    "photo_dhash": "6c8b9376e7ca6a7e",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Ficus religiosa",
+        "common_name": "Peepal tree",
+        "confidence_percentage": "24.4%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Ficus arnottiana",
+        "common_name": "Indian Rock Fig",
+        "confidence_percentage": "6.2%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ipomoea carnea",
+        "common_name": "Gloria de la manana",
+        "confidence_percentage": "3.1%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_101342AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Ficus religiosa 24.4%; Ficus arnottiana 6.2%; Ipomoea carnea 3.1%. Visual check: heart-shaped leaves with long drip tips agree. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 236,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-4c3052c61d42f2ee05f175206743767e",
+    "taxon_id": null,
+    "scientific_name": "Ficus religiosa",
+    "common_name": "Peepal tree",
+    "observed_on": "2026-07-26",
+    "quality_grade": "research",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_4c3052c61d42f2ee05f175206743767e.jpg",
+    "latitude": 18.518511,
+    "longitude": 73.7802,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_93916AMByGPSMapCamera.jpg'",
+    "photo_sha256": "4c3052c61d42f2ee05f175206743767ecadd5a539a9ede3312759407bd9c8abd",
+    "photo_dhash": "333719ded067eefc",
+    "identification_status": "verified",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Ficus religiosa",
+        "common_name": "Peepal tree",
+        "confidence_percentage": "34.9%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Eucalyptus robusta",
+        "common_name": "Swampmahogany",
+        "confidence_percentage": "10.0%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ficus virens",
+        "common_name": "Mountain fig",
+        "confidence_percentage": "3.9%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_93916AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Ficus religiosa 34.9%; Eucalyptus robusta 10.0%; Ficus virens 3.9%. Visual check: drip-tip leaves and reddish young leaves agree. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 237,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-4b789e4e8ececf28a4c383c95cbd7a03",
+    "taxon_id": null,
+    "scientific_name": "Ficus benghalensis",
+    "common_name": "Banyan",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_4b789e4e8ececf28a4c383c95cbd7a03.jpg",
+    "latitude": 18.518959,
+    "longitude": 73.779925,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_102513AMByGPSMapCamera.jpg'",
+    "photo_sha256": "4b789e4e8ececf28a4c383c95cbd7a033578a86af81c1d8b20c835b57ffab7b2",
+    "photo_dhash": "27e73bc891c6e6ae",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Ficus benghalensis",
+        "common_name": "Indian banyan",
+        "confidence_percentage": "39.4%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Litsea glutinosa",
+        "common_name": "Indian Laurel",
+        "confidence_percentage": "11.3%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ficus racemosa",
+        "common_name": "Cluster fig",
+        "confidence_percentage": "1.6%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_102513AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Ficus benghalensis 39.4%; Litsea glutinosa 11.3%; Ficus racemosa 1.6%. Visual check: large leathery leaves with pale veins agree. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 238,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-8409f9829de6d3aaa63523280ca50fda",
+    "taxon_id": null,
+    "scientific_name": "Mangifera indica",
+    "common_name": "Mango",
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_8409f9829de6d3aaa63523280ca50fda.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0070.jpg'",
+    "photo_sha256": "8409f9829de6d3aaa63523280ca50fdad1fc0e43da64e338c9edaead45bf64f7",
+    "photo_dhash": "e6a40c58fa227a7e",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Mangifera indica",
+        "common_name": "Mango",
+        "confidence_percentage": "90.6%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Plumeria alba",
+        "common_name": "White frangipani",
+        "confidence_percentage": "0.2%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Alstonia scholaris",
+        "common_name": "Blackboard Tree",
+        "confidence_percentage": "0.1%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0070.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Mangifera indica 90.6%; Plumeria alba 0.2%; Alstonia scholaris 0.1%. Visual check: clustered lanceolate leaves agree. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 239,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-ddee5e21f299a7646c2d9a4085ae2611",
+    "taxon_id": null,
+    "scientific_name": "Psidium guajava",
+    "common_name": "Guava",
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_ddee5e21f299a7646c2d9a4085ae2611.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0085.jpg'",
+    "photo_sha256": "ddee5e21f299a7646c2d9a4085ae2611fbc2d7d5c245a98047ff51dbedcb5478",
+    "photo_dhash": "47829037af33737e",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Psidium guajava",
+        "common_name": "Guava",
+        "confidence_percentage": "89.0%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Psidium guineense",
+        "common_name": "Brazilian guava",
+        "confidence_percentage": "2.7%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Annona squamosa",
+        "common_name": "Sugar apple",
+        "confidence_percentage": "0.2%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0085.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Psidium guajava 89.0%; Psidium guineense 2.7%; Annona squamosa 0.2%. Visual check: young guava leaves agree. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 240,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-1d30c43938a614f859147f6a46be44cf",
+    "taxon_id": null,
+    "scientific_name": "Tabernaemontana divaricata",
+    "common_name": "Crape jasmine / Tagar",
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_1d30c43938a614f859147f6a46be44cf.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0073.jpg'",
+    "photo_sha256": "1d30c43938a614f859147f6a46be44cfc0b603e30189a490d937674553a0d9c0",
+    "photo_dhash": "cccc2f970619f2d6",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Tabernaemontana divaricata",
+        "common_name": "Crape jasmine",
+        "confidence_percentage": "32.6%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Capsicum annuum",
+        "common_name": "Peppers",
+        "confidence_percentage": "8.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Justicia adhatoda",
+        "common_name": "Malabar nut",
+        "confidence_percentage": "3.1%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0073.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Tabernaemontana divaricata 32.6%; Capsicum annuum 8.4%; Justicia adhatoda 3.1%. Visual check: white five-petalled flower and glossy leaves agree. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 241,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-f655b38635b6cf9978cf0f71b6416cbc",
+    "taxon_id": null,
+    "scientific_name": "Terminalia arjuna",
+    "common_name": "Arjun",
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_f655b38635b6cf9978cf0f71b6416cbc.jpg",
+    "latitude": 18.518596,
+    "longitude": 73.780142,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_94113AMByGPSMapCamera.jpg'",
+    "photo_sha256": "f655b38635b6cf9978cf0f71b6416cbcdebb5db682606b2e4b3b09a644a4868d",
+    "photo_dhash": "a42d9c9a4db7e6de",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Terminalia arjuna",
+        "common_name": "Arjun",
+        "confidence_percentage": "34.8%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Syzygium jambos",
+        "common_name": "Malabar plum",
+        "confidence_percentage": "3.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Homonoia riparia",
+        "common_name": "Willow Leaved Water Croton",
+        "confidence_percentage": "3.1%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_94113AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Terminalia arjuna 34.8%; Syzygium jambos 3.4%; Homonoia riparia 3.1%. Visual check: oblong leaves consistent. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 242,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-8bfa9975018c32b8f8389781d21fe2bd",
+    "taxon_id": null,
+    "scientific_name": "Ficus religiosa",
+    "common_name": "Peepal / Sacred fig",
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_8bfa9975018c32b8f8389781d21fe2bd.jpg",
+    "latitude": 18.518657,
+    "longitude": 73.780212,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100454AMByGPSMapCamera.jpg'",
+    "photo_sha256": "8bfa9975018c32b8f8389781d21fe2bd96cdcda615709859c0ee6d920b30902a",
+    "photo_dhash": "2532614e52e9d27e",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Thespesia populneoides",
+        "common_name": "Pacific Rosewood",
+        "confidence_percentage": "3.0%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Thespesia populnea",
+        "common_name": "Portia tree",
+        "confidence_percentage": "2.9%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ficus arnottiana",
+        "common_name": "Indian Rock Fig",
+        "confidence_percentage": "1.6%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100454AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Thespesia populneoides 3.0%; Thespesia populnea 2.9%; Ficus arnottiana 1.6%. Visual check: heart-shaped drip-tip leaves look like peepal; Pl@ntNet was unsure (Thespesia 3%). Not yet confirmed by RSWF."
+  },
+  {
+    "id": 243,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-b888832a1f13ef02d268b607314dd053",
+    "taxon_id": null,
+    "scientific_name": "Azadirachta indica",
+    "common_name": "Neem",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_b888832a1f13ef02d268b607314dd053.jpg",
+    "latitude": 18.519173,
+    "longitude": 73.779987,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_94523AMByGPSMapCamera.jpg'",
+    "photo_sha256": "b888832a1f13ef02d268b607314dd053f89c9722c2a6fa2093e4e45adf43fd4e",
+    "photo_dhash": "c36133befeb6fa66",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Azadirachta indica",
+        "common_name": "Neem",
+        "confidence_percentage": "11.4%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Ailanthus excelsa",
+        "common_name": "Indian tree of-heaven",
+        "confidence_percentage": "3.5%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Cedrela odorata",
+        "common_name": "Spanish cedar",
+        "confidence_percentage": "1.3%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_94523AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Azadirachta indica 11.4%; Ailanthus excelsa 3.5%; Cedrela odorata 1.3%. Visual check: pinnate leaves look neem-like; Ailanthus excelsa also possible. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 244,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-3f26513febd5bf6592226948d9ff34c1",
+    "taxon_id": null,
+    "scientific_name": "Plumeria",
+    "common_name": "Frangipani / Chafa",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_3f26513febd5bf6592226948d9ff34c1.jpg",
+    "latitude": 18.519017,
+    "longitude": 73.780027,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95754AMByGPSMapCamera.jpg'",
+    "photo_sha256": "3f26513febd5bf6592226948d9ff34c1ce5f4eb747fb7103ca6a7aefa4bd2157",
+    "photo_dhash": "938d9db6ecacfeee",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Plumeria alba",
+        "common_name": "White frangipani",
+        "confidence_percentage": "4.5%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Mangifera indica",
+        "common_name": "Mango",
+        "confidence_percentage": "3.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Crescentia cujete",
+        "common_name": "Common Calabash Tree",
+        "confidence_percentage": "3.0%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95754AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Plumeria alba 4.5%; Mangifera indica 3.4%; Crescentia cujete 3.0%. Visual check: leaves clustered at the stem tip on a thick stem look like Plumeria; species not determinable. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 245,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-a598aa17bcd94f2298727bd06e0be3f8",
+    "taxon_id": null,
+    "scientific_name": "Plumeria",
+    "common_name": "Frangipani / Chafa",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_a598aa17bcd94f2298727bd06e0be3f8.jpg",
+    "latitude": 18.51899,
+    "longitude": 73.779787,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_100125AMByGPSMapCamera.jpg'",
+    "photo_sha256": "a598aa17bcd94f2298727bd06e0be3f8122a8f22f3160c20ff4fedec043e3f98",
+    "photo_dhash": "5fce64e4b4286ea6",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Solanum glaucophyllum",
+        "common_name": "Waxyleaf nightshade",
+        "confidence_percentage": "3.3%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Mangifera indica",
+        "common_name": "Mango",
+        "confidence_percentage": "2.9%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ficus callosa",
+        "common_name": "Jack fruit",
+        "confidence_percentage": "1.5%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_100125AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Solanum glaucophyllum 3.3%; Mangifera indica 2.9%; Ficus callosa 1.5%. Visual check: same growth form as the other Plumeria saplings; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 246,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-e15ee7df702a0e0e27cc3f0a3e3b8b80",
+    "taxon_id": null,
+    "scientific_name": "Plumeria",
+    "common_name": "Frangipani / Chafa",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_e15ee7df702a0e0e27cc3f0a3e3b8b80.jpg",
+    "latitude": 18.519039,
+    "longitude": 73.780038,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95648AMByGPSMapCamera.jpg'",
+    "photo_sha256": "e15ee7df702a0e0e27cc3f0a3e3b8b8073a7d237a8b1cf2f7b4a135c328d55d5",
+    "photo_dhash": "669c99f9d89ef87a",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Codiaeum variegatum",
+        "common_name": "Variegated Croton",
+        "confidence_percentage": "2.7%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Prunus persica",
+        "common_name": "Peach",
+        "confidence_percentage": "1.5%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Madhuca longifolia",
+        "common_name": "Honey tree",
+        "confidence_percentage": "1.0%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95648AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Codiaeum variegatum 2.7%; Prunus persica 1.5%; Madhuca longifolia 1.0%. Visual check: same growth form as the other Plumeria saplings; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 247,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-3bbe56881b98251167e28bff2401ef54",
+    "taxon_id": null,
+    "scientific_name": "Plumeria",
+    "common_name": "Frangipani / Chafa",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_3bbe56881b98251167e28bff2401ef54.jpg",
+    "latitude": 18.518961,
+    "longitude": 73.77991,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_101748AMByGPSMapCamera.jpg'",
+    "photo_sha256": "3bbe56881b98251167e28bff2401ef54ab0f3c2bc0e029e0b18a99dd7a001df1",
+    "photo_dhash": "92d83978716876fe",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_101748AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): no match. Visual check: same growth form as the other Plumeria saplings; Pl@ntNet found no match. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 248,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-7d12ac90401da59d63625c37d012ce45",
+    "taxon_id": null,
+    "scientific_name": "Vitex pinnata",
+    "common_name": "Vitex / Priyangu",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_7d12ac90401da59d63625c37d012ce45.jpg",
+    "latitude": 18.519165,
+    "longitude": 73.779994,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_93617AMByGPSMapCamera.jpg'",
+    "photo_sha256": "7d12ac90401da59d63625c37d012ce45c8d7e4335767d5b828fd663eb2a39b90",
+    "photo_dhash": "34678ee89c39e6f6",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Vitex pinnata",
+        "common_name": "Malayan Teak",
+        "confidence_percentage": "36.6%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Nephelium lappaceum",
+        "common_name": "Rambutan",
+        "confidence_percentage": "2.7%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Justicia adhatoda",
+        "common_name": "Malabar nut",
+        "confidence_percentage": "1.8%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_93617AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Vitex pinnata 36.6%; Nephelium lappaceum 2.7%; Justicia adhatoda 1.8%. Visual check: leaves partly yellowed, could not confirm visually. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 249,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-8017312c18b992771eab6874d346d7ba",
+    "taxon_id": null,
+    "scientific_name": "Ceiba pentandra",
+    "common_name": "Kapok / Safed semal",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_8017312c18b992771eab6874d346d7ba.jpg",
+    "latitude": 18.519206,
+    "longitude": 73.780047,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95157AMByGPSMapCamera.jpg'",
+    "photo_sha256": "8017312c18b992771eab6874d346d7ba38ca1a2751fac89c74665c126b9f8ad7",
+    "photo_dhash": "8f0d8a5edcd8f666",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Ceiba pentandra",
+        "common_name": "White silk cotton tree",
+        "confidence_percentage": "16.1%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Abelmoschus manihot",
+        "common_name": "Sunset hibiscus",
+        "confidence_percentage": "2.1%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Gossypium arboreum",
+        "common_name": "Tree cotton",
+        "confidence_percentage": "1.9%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95157AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Ceiba pentandra 16.1%; Abelmoschus manihot 2.1%; Gossypium arboreum 1.9%. Visual check: palmately compound leaves; Bombax ceiba (on the site list) looks similar as a sapling. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 250,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-3eadbd6c69263bd7beba6fabb39e655f",
+    "taxon_id": null,
+    "scientific_name": "Manihot esculenta",
+    "common_name": "Cassava",
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_3eadbd6c69263bd7beba6fabb39e655f.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0027.jpg'",
+    "photo_sha256": "3eadbd6c69263bd7beba6fabb39e655fe8584ae4398f701e220e94aa8a9fccab",
+    "photo_dhash": "713d191b730f6e7e",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Manihot esculenta",
+        "common_name": "Cassava",
+        "confidence_percentage": "16.5%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Cannabis sativa",
+        "common_name": "Cannabis",
+        "confidence_percentage": "13.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ceiba pentandra",
+        "common_name": "White silk cotton tree",
+        "confidence_percentage": "8.2%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0027.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Manihot esculenta 16.5%; Cannabis sativa 13.4%; Ceiba pentandra 8.2%. Visual check: palmately lobed leaves; could also be a Ceiba/Bombax sapling. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 251,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-ebd87522960f68849ff5096620eacb4c",
+    "taxon_id": null,
+    "scientific_name": "Vitex negundo",
+    "common_name": "Nirgudi",
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_ebd87522960f68849ff5096620eacb4c.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0038.jpg'",
+    "photo_sha256": "ebd87522960f68849ff5096620eacb4c82b55b844027c7ea0e79ab436e83a6f2",
+    "photo_dhash": "f83a1b944b34366e",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Vitex negundo",
+        "common_name": "Chinese chastetree",
+        "confidence_percentage": "18.7%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Triadica cochinchinensis",
+        "common_name": "Mountain Tallow",
+        "confidence_percentage": "1.2%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Senna occidentalis",
+        "common_name": "Septicweed",
+        "confidence_percentage": "1.0%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0038.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Vitex negundo 18.7%; Triadica cochinchinensis 1.2%; Senna occidentalis 1.0%. Visual check: narrow lanceolate leaves consistent, not certain. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 252,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-d32750be6545336fb9fab89aa8ebbbdf",
+    "taxon_id": null,
+    "scientific_name": "Anacardium occidentale",
+    "common_name": "Cashew",
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_d32750be6545336fb9fab89aa8ebbbdf.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0041.jpg'",
+    "photo_sha256": "d32750be6545336fb9fab89aa8ebbbdfdbbd8672631837ec90671f416ffede17",
+    "photo_dhash": "030e1e321e4cc6d2",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Anacardium occidentale",
+        "common_name": "Cashew",
+        "confidence_percentage": "17.9%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Plumeria rubra",
+        "common_name": "Frangipani",
+        "confidence_percentage": "5.0%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Tectona grandis",
+        "common_name": "Teak",
+        "confidence_percentage": "1.9%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0041.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Anacardium occidentale 17.9%; Plumeria rubra 5.0%; Tectona grandis 1.9%. Visual check: small seedling, not certain. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 253,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-bef62cea6b6051c9be236055f476a2b9",
+    "taxon_id": null,
+    "scientific_name": "Syzygium cumini",
+    "common_name": "Jamun",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_bef62cea6b6051c9be236055f476a2b9.jpg",
+    "latitude": 18.519169,
+    "longitude": 73.779981,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_92935AMByGPSMapCamera.jpg'",
+    "photo_sha256": "bef62cea6b6051c9be236055f476a2b98097cf773757491625fa8e151679f1fd",
+    "photo_dhash": "b094d6dc9004d6ee",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Syzygium cumini",
+        "common_name": "Java plum",
+        "confidence_percentage": "13.0%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Syzygium jambos",
+        "common_name": "Malabar plum",
+        "confidence_percentage": "9.3%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Annona muricata",
+        "common_name": "Soursop",
+        "confidence_percentage": "2.4%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_92935AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Syzygium cumini 13.0%; Syzygium jambos 9.3%; Annona muricata 2.4%. Visual check: narrow glossy leaves consistent, not certain. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 254,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-718d27b50bd659ebd8d6a482190a62cb",
+    "taxon_id": null,
+    "scientific_name": "Terminalia catappa",
+    "common_name": "Indian almond",
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_718d27b50bd659ebd8d6a482190a62cb.jpg",
+    "latitude": 18.518611,
+    "longitude": 73.780211,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_94709AMByGPSMapCamera.jpg'",
+    "photo_sha256": "718d27b50bd659ebd8d6a482190a62cb81020e41a9c8afdf6fda46c409362f15",
+    "photo_dhash": "1db6933146dafa6e",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Couroupita guianensis",
+        "common_name": "Cannonball tree",
+        "confidence_percentage": "15.0%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Eriobotrya japonica",
+        "common_name": "Loquat",
+        "confidence_percentage": "5.5%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Alstonia macrophylla",
+        "common_name": "Devil tree",
+        "confidence_percentage": "1.1%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_94709AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Couroupita guianensis 15.0%; Eriobotrya japonica 5.5%; Alstonia macrophylla 1.1%. Visual check: obovate leaves whorled at branch tips look like Terminalia catappa; Pl@ntNet suggested Couroupita guianensis 15%. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 255,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-3178523c008baa17917fc584f2677807",
+    "taxon_id": null,
+    "scientific_name": "Mangifera indica",
+    "common_name": "Mango",
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_3178523c008baa17917fc584f2677807.jpg",
+    "latitude": 18.518587,
+    "longitude": 73.780154,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_94009AMByGPSMapCamera.jpg'",
+    "photo_sha256": "3178523c008baa17917fc584f2677807896fad06ea9b77b406dcc24bad0690a6",
+    "photo_dhash": "8c1111afb061eafe",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Mangifera indica",
+        "common_name": "Mango",
+        "confidence_percentage": "0.9%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Madhuca longifolia",
+        "common_name": "Honey tree",
+        "confidence_percentage": "0.5%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Alstonia macrophylla",
+        "common_name": "Devil tree",
+        "confidence_percentage": "0.3%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_94009AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Mangifera indica 0.9%; Madhuca longifolia 0.5%; Alstonia macrophylla 0.3%. Visual check: leaf shape and reddish new growth look like mango; Pl@ntNet very unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 256,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-aed855252159299611be2691ac13381c",
+    "taxon_id": null,
+    "scientific_name": "Putranjiva roxburghii",
+    "common_name": "Putranjiva",
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_aed855252159299611be2691ac13381c.jpg",
+    "latitude": 18.518984,
+    "longitude": 73.77991,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_91501AMByGPSMapCamera.jpg'",
+    "photo_sha256": "aed855252159299611be2691ac13381c8c65ac2dcf6675ea0e0882ae9ba5dfcc",
+    "photo_dhash": "8684d5416452e6f2",
+    "identification_status": "needs_review",
+    "identification_confidence": "medium",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Putranjiva roxburghii",
+        "common_name": "Putranjiva",
+        "confidence_percentage": "18.4%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Mimusops elengi",
+        "common_name": "Spanish cherry",
+        "confidence_percentage": "7.2%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Acrostichum aureum",
+        "common_name": "Golden Leatherfern",
+        "confidence_percentage": "3.4%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_91501AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Putranjiva roxburghii 18.4%; Mimusops elengi 7.2%; Acrostichum aureum 3.4%. Visual check: drooping narrow leaves; Polyalthia longifolia (Ashoka) also possible. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 257,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-504c65cbfde5f80235aed8b9c72b1f40",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_504c65cbfde5f80235aed8b9c72b1f40.jpg",
+    "latitude": 18.518713,
+    "longitude": 73.78029,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_101931AMByGPSMapCamera.jpg'",
+    "photo_sha256": "504c65cbfde5f80235aed8b9c72b1f4092db8e1121a91e42fae46b5ce8c96a19",
+    "photo_dhash": "24b6efb3f1d3626e",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Annona reticulata",
+        "common_name": "Custard apple",
+        "confidence_percentage": "8.6%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Alstonia macrophylla",
+        "common_name": "Devil tree",
+        "confidence_percentage": "5.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Blumea balsamifera",
+        "common_name": "Ngai camphor",
+        "confidence_percentage": "4.6%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_101931AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Annona reticulata 8.6%; Alstonia macrophylla 5.4%; Blumea balsamifera 4.6%. Visual check: large clustered leaves; Pl@ntNet unsure (Annona reticulata 8.6%). Not yet confirmed by RSWF."
+  },
+  {
+    "id": 258,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-a79d95fece78439433b997813189301c",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_a79d95fece78439433b997813189301c.jpg",
+    "latitude": 18.51915,
+    "longitude": 73.779992,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_94852AMByGPSMapCamera.jpg'",
+    "photo_sha256": "a79d95fece78439433b997813189301cb38a612a619639c01b61fab45005b977",
+    "photo_dhash": "4c96cccc592eaeb6",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Jatropha gossypiifolia",
+        "common_name": "Bellyache bush",
+        "confidence_percentage": "15.1%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Malus domestica",
+        "common_name": "Paradise apple",
+        "confidence_percentage": "1.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Solanum melongena",
+        "common_name": "Eggplant",
+        "confidence_percentage": "1.1%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_94852AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Jatropha gossypiifolia 15.1%; Malus domestica 1.4%; Solanum melongena 1.1%. Visual check: slender sapling with reddish young leaves; Pl@ntNet suggestion (Jatropha gossypiifolia) does not match visually. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 259,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-3b7060a499274cc324d9e5744de5cf14",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_3b7060a499274cc324d9e5744de5cf14.jpg",
+    "latitude": 18.519052,
+    "longitude": 73.780015,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95255AMByGPSMapCamera.jpg'",
+    "photo_sha256": "3b7060a499274cc324d9e5744de5cf1431be5ffbde72f020fc9320b308377f27",
+    "photo_dhash": "0496c6a5b82afef6",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Solanum melongena",
+        "common_name": "Eggplant",
+        "confidence_percentage": "41.6%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Cydonia oblonga",
+        "common_name": "Quince",
+        "confidence_percentage": "7.6%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Flacourtia indica",
+        "common_name": "Governor's Plum",
+        "confidence_percentage": "1.4%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_95255AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Solanum melongena 41.6%; Cydonia oblonga 7.6%; Flacourtia indica 1.4%. Visual check: broad smooth leaves; Pl@ntNet suggestion (Solanum melongena 41.6%) does not match a planted tree sapling. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 260,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-eab224546ce6556d2e150867843a4af4",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_eab224546ce6556d2e150867843a4af4.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0060.jpg'",
+    "photo_sha256": "eab224546ce6556d2e150867843a4af4e70bf643b25f6f35f219c5a60e312c96",
+    "photo_dhash": "4109b268c90f4e6e",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Psidium guineense",
+        "common_name": "Brazilian guava",
+        "confidence_percentage": "15.0%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Solanum melongena",
+        "common_name": "Eggplant",
+        "confidence_percentage": "10.3%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Lonicera caerulea",
+        "common_name": "Blue honeysuckle",
+        "confidence_percentage": "3.3%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0060.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Psidium guineense 15.0%; Solanum melongena 10.3%; Lonicera caerulea 3.3%. Visual check: broad glossy leaves; Pl@ntNet unsure (Psidium guineense 15%). Not yet confirmed by RSWF."
+  },
+  {
+    "id": 261,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-92f97677e55632e1b29164b5858ec38c",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_92f97677e55632e1b29164b5858ec38c.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0066.jpg'",
+    "photo_sha256": "92f97677e55632e1b29164b5858ec38ca8b1ede80120e33bf1805619a8091446",
+    "photo_dhash": "d4f63bf7c3b66efe",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Khaya senegalensis",
+        "common_name": "Senegal Mahogany",
+        "confidence_percentage": "5.2%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Anacardium occidentale",
+        "common_name": "Cashew",
+        "confidence_percentage": "3.1%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Swietenia macrophylla",
+        "common_name": "Big Leaf Mahogany",
+        "confidence_percentage": "2.0%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0066.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Khaya senegalensis 5.2%; Anacardium occidentale 3.1%; Swietenia macrophylla 2.0%. Visual check: Pl@ntNet unsure (Khaya senegalensis 5%). Not yet confirmed by RSWF."
+  },
+  {
+    "id": 262,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-debb1477b9354079da0b3d6821eef515",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_debb1477b9354079da0b3d6821eef515.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0080.jpg'",
+    "photo_sha256": "debb1477b9354079da0b3d6821eef5152f189ad250f66e5501760e36a36c9a44",
+    "photo_dhash": "52cc2b335b932a66",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Fagopyrum esculentum",
+        "common_name": "Buckwheat",
+        "confidence_percentage": "7.1%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Flacourtia indica",
+        "common_name": "Governor's Plum",
+        "confidence_percentage": "4.6%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Psidium guajava",
+        "common_name": "Guava",
+        "confidence_percentage": "2.6%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0080.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Fagopyrum esculentum 7.1%; Flacourtia indica 4.6%; Psidium guajava 2.6%. Visual check: small sapling; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 263,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-0f62cfcf5678ab48353e40bb4942138f",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_0f62cfcf5678ab48353e40bb4942138f.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0083.jpg'",
+    "photo_sha256": "0f62cfcf5678ab48353e40bb4942138f194978a01b5e9bd26e995a3552ea6e8b",
+    "photo_dhash": "d89c6050122f6e76",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Sida rhombifolia",
+        "common_name": "Cuban jute",
+        "confidence_percentage": "24.3%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Solanum melongena",
+        "common_name": "Eggplant",
+        "confidence_percentage": "9.5%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Amaranthus viridis",
+        "common_name": "Slender amaranth",
+        "confidence_percentage": "1.3%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0083.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Sida rhombifolia 24.3%; Solanum melongena 9.5%; Amaranthus viridis 1.3%. Visual check: small sapling; Pl@ntNet suggestion (Sida rhombifolia, a weed) does not match a planted sapling. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 264,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-9208bf6f929001e6799483e43cdb5d9c",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_9208bf6f929001e6799483e43cdb5d9c.jpg",
+    "latitude": 18.51861,
+    "longitude": 73.780208,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100419AMByGPSMapCamera.jpg'",
+    "photo_sha256": "9208bf6f929001e6799483e43cdb5d9cb07db8930861bdaf9761e21dc1f132ae",
+    "photo_dhash": "236f278c8c2f6e76",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Manihot esculenta",
+        "common_name": "Cassava",
+        "confidence_percentage": "3.1%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Hevea brasiliensis",
+        "common_name": "Rubber Tree",
+        "confidence_percentage": "2.0%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ricinus communis",
+        "common_name": "Castor oil-plant",
+        "confidence_percentage": "1.5%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100419AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Manihot esculenta 3.1%; Hevea brasiliensis 2.0%; Ricinus communis 1.5%. Visual check: tall sapling photographed from a distance; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 265,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-49c02adf74d350d11a4b117ed43ee1a6",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_49c02adf74d350d11a4b117ed43ee1a6.jpg",
+    "latitude": 18.518694,
+    "longitude": 73.780265,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100547AMByGPSMapCamera.jpg'",
+    "photo_sha256": "49c02adf74d350d11a4b117ed43ee1a6953d1b61685e16bbc04b3e7c6b2f5ec1",
+    "photo_dhash": "8c884c664a21f3cc",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Tectona grandis",
+        "common_name": "Teak",
+        "confidence_percentage": "7.5%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Vigna radiata",
+        "common_name": "Mung Bean",
+        "confidence_percentage": "7.5%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Dioscorea hispida",
+        "common_name": "Intoxicating yam",
+        "confidence_percentage": "2.9%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100547AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Tectona grandis 7.5%; Vigna radiata 7.5%; Dioscorea hispida 2.9%. Visual check: seedling with large leaves; Pl@ntNet unsure (Tectona grandis 7.5%). Not yet confirmed by RSWF."
+  },
+  {
+    "id": 266,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-75f497e2bafb68712b7e88a2d69d485c",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-19",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_75f497e2bafb68712b7e88a2d69d485c.jpg",
+    "latitude": 18.519251,
+    "longitude": 73.77998,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE C",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_100826AMByGPSMapCamera.jpg'",
+    "photo_sha256": "75f497e2bafb68712b7e88a2d69d485cbfaee586d63bc6b7e197b4b6086267cd",
+    "photo_dhash": "cd4d5dc9e52efafe",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Solanum glaucophyllum",
+        "common_name": "Waxyleaf nightshade",
+        "confidence_percentage": "1.9%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Apodytes dimidiata",
+        "common_name": "White pear",
+        "confidence_percentage": "0.4%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Acacia pycnantha",
+        "common_name": "Golden wattle",
+        "confidence_percentage": "0.4%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Crops/20260719_100826AMByGPSMapCamera.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Solanum glaucophyllum 1.9%; Apodytes dimidiata 0.4%; Acacia pycnantha 0.4%. Visual check: small sapling; Pl@ntNet found no reliable match. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 267,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-c0ac92fd1c7cb2a56d109e1cbfc9dbb6",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_c0ac92fd1c7cb2a56d109e1cbfc9dbb6.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0043.jpg'",
+    "photo_sha256": "c0ac92fd1c7cb2a56d109e1cbfc9dbb6a9adb4ca616c915d129c28b811c897d8",
+    "photo_dhash": "06432b13170f6fc6",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Ficus callosa",
+        "common_name": "Jack fruit",
+        "confidence_percentage": "6.5%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Holarrhena pubescens",
+        "common_name": "Jasmine tree",
+        "confidence_percentage": "6.2%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Annona reticulata",
+        "common_name": "Custard apple",
+        "confidence_percentage": "4.2%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0043.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Ficus callosa 6.5%; Holarrhena pubescens 6.2%; Annona reticulata 4.2%. Visual check: seedling; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 268,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-2f4632b1fe1e2e661743aa75d576a4d1",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_2f4632b1fe1e2e661743aa75d576a4d1.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0074.jpg'",
+    "photo_sha256": "2f4632b1fe1e2e661743aa75d576a4d1e50595e558ff2e879f8676d0f21c6c4e",
+    "photo_dhash": "2038ad71371efbfe",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Gardenia resinifera",
+        "common_name": null,
+        "confidence_percentage": "8.4%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Psidium guajava",
+        "common_name": "Guava",
+        "confidence_percentage": "6.8%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Distimake aegyptius",
+        "common_name": "Hairy Woodrose",
+        "confidence_percentage": "4.2%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0074.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Gardenia resinifera 8.4%; Psidium guajava 6.8%; Distimake aegyptius 4.2%. Visual check: seedling; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 269,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-345b588d8db53b8d18446b168d4fa8f8",
+    "taxon_id": null,
+    "scientific_name": null,
+    "common_name": null,
+    "observed_on": "2026-07-12",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_345b588d8db53b8d18446b168d4fa8f8.jpg",
+    "latitude": 18.518685,
+    "longitude": 73.780256,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0072.jpg'",
+    "photo_sha256": "345b588d8db53b8d18446b168d4fa8f8a3faf6bb1a432bd26b4bab03ac170689",
+    "photo_dhash": "6a50c80d3367cbf6",
+    "identification_status": "needs_review",
+    "identification_confidence": "none",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Sida rhombifolia",
+        "common_name": "Cuban jute",
+        "confidence_percentage": "1.8%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Flacourtia indica",
+        "common_name": "Governor's Plum",
+        "confidence_percentage": "0.7%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Psidium guajava",
+        "common_name": "Guava",
+        "confidence_percentage": "0.6%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from 'Geotagged Photos/IMG-20260712-WA0072.jpg'. Pl@ntNet (Indian Subcontinent flora, overlay removed): Sida rhombifolia 1.8%; Flacourtia indica 0.7%; Psidium guajava 0.6%. Visual check: small sapling; Pl@ntNet unsure. Not yet confirmed by RSWF."
+  },
+  {
+    "id": 270,
+    "source": "NGO / New Upload",
+    "source_id": "NGO-GEOTAG-6f61e3414fdf770b37757529145a7a73",
+    "taxon_id": null,
+    "scientific_name": "Ficus religiosa",
+    "common_name": "Peepal / Sacred fig",
+    "observed_on": "2026-07-26",
+    "quality_grade": "needs_id",
+    "observer": "RSWF Field Volunteer",
+    "photo_url": "/uploads/upload_6f61e3414fdf770b37757529145a7a73.jpg",
+    "latitude": 18.518665,
+    "longitude": 73.780208,
+    "gps_source": "IMAGE_GEOTAG",
+    "gps_description": "GPS detected from visible geotag on image (User Confirmed)",
+    "zone": "ZONE A",
+    "zone_status": "ACTIVE_ZONE",
+    "notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100508AMByGPSMapCamera.jpg' (re-encoded to fit 10 MB limit)",
+    "photo_sha256": "6f61e3414fdf770b37757529145a7a73ebc463474675eaf103300bcc0a2a5a98",
+    "photo_dhash": "662729a4309866ce",
+    "identification_status": "ai_suggested",
+    "identification_confidence": "high",
+    "ai_top_predictions": [
+      {
+        "rank": 1,
+        "scientific_name": "Ficus religiosa",
+        "common_name": "Peepal tree",
+        "confidence_percentage": "36.0%"
+      },
+      {
+        "rank": 2,
+        "scientific_name": "Ficus arnottiana",
+        "common_name": "Indian Rock Fig",
+        "confidence_percentage": "3.7%"
+      },
+      {
+        "rank": 3,
+        "scientific_name": "Ficus rumphii",
+        "common_name": "Mock Bodh Tree",
+        "confidence_percentage": "1.8%"
+      }
+    ],
+    "verification_notes": "Bulk import 2026-09-28 from '26 july 2026/20260726_100508AMByGPSMapCamera.jpg' (re-encoded to fit 10 MB limit). Pl@ntNet (Indian Subcontinent flora, overlay removed): Ficus religiosa 36.0%; Ficus arnottiana 3.7%; Ficus rumphii 1.8%. Visual check: heart-shaped leaves with long drip tips agree. Not yet confirmed by RSWF."
+  }
+]
