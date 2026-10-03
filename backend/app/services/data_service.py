@@ -971,7 +971,45 @@ class DataService:
         zone: Optional[str] = None,
         quality_grade: Optional[str] = None
     ) -> Dict[str, Any]:
-        return DataService.get_map_observations_geojson(source=source, zone=zone)
+        """
+        Observations as a GeoJSON FeatureCollection — the full column set from the CSV, so
+        downloads opened in QGIS, Google Earth or Felt show observer, species, source and
+        identification state alongside the point.
+        """
+        records, _, _ = DataService.get_observations(
+            source=source, zone=zone, species=species,
+            quality_grade=quality_grade, limit=10000,
+        )
+        features = []
+        for r in records:
+            features.append({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [r.get("longitude"), r.get("latitude")],
+                },
+                "properties": {
+                    "id": r.get("id"),
+                    "source": r.get("source"),
+                    "source_id": r.get("source_id"),
+                    "scientific_name": r.get("scientific_name") or None,
+                    "common_name": r.get("common_name") or None,
+                    "observed_on": r.get("observed_on") or None,
+                    "observer": r.get("observer") or None,
+                    "quality_grade": r.get("quality_grade") or None,
+                    "identification_status": r.get("identification_status") or None,
+                    "zone": r.get("zone") or None,
+                    "zone_status": r.get("zone_status") or "OUTSIDE_ACTIVE_ZONES",
+                    "observation_url": r.get("observation_url") or None,
+                    "photo_url": r.get("photo_url") or None,
+                },
+            })
+        return {
+            "type": "FeatureCollection",
+            "name": "Bavdhan_Van_Udyan_Observations",
+            "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}},
+            "features": features,
+        }
 
     @staticmethod
     def export_planted_plants_geojson(
@@ -1013,14 +1051,51 @@ class DataService:
 
     @staticmethod
     def export_complete_zip_package() -> bytes:
+        """
+        Complete dataset archive. Includes a README so recipients understand what each file
+        is and how it was produced (open data, no licence restrictions, generated date).
+        """
+        import datetime as _dt
+
         obs_csv = DataService.export_observations_csv()
         planted_csv = DataService.export_planted_plants_csv()
         species_csv = DataService.export_species_csv()
         obs_geojson = json.dumps(DataService.export_observations_geojson(), indent=2)
         planted_geojson = json.dumps(DataService.export_planted_plants_geojson(), indent=2)
 
+        readme = (
+            "Van Udyan Biodiversity Dataset\n"
+            "==============================\n\n"
+            f"Generated: {_dt.datetime.now().strftime('%d %B %Y, %H:%M IST')}\n"
+            "Source:    Van Udyan Biodiversity Platform, by RSWF (Reform Social Welfare\n"
+            "           Foundation), Pune. Live project database.\n"
+            "Site:      Bavdhan Van Udyan, Pune, Maharashtra 411021 (Plus Code GQ9J+74Q).\n"
+            "Area:      3.58 ha outer boundary; 3 RSWF active work zones (A, B, C).\n\n"
+            "Files in this archive\n"
+            "---------------------\n"
+            "  van_udyan_observations.csv       Every plant record (iNaturalist + RSWF uploads).\n"
+            "                                   Columns include scientific_name, observer, zone,\n"
+            "                                   observed_on, latitude, longitude, photo_url.\n"
+            "  van_udyan_observations.geojson   The same records as GeoJSON points, ready to open\n"
+            "                                   in QGIS, Google Earth or Felt. Coordinates in WGS84.\n"
+            "  van_udyan_planted_plants.csv     Trees RSWF has planted, with plant codes, species,\n"
+            "                                   planting dates and current health status.\n"
+            "  van_udyan_planted_plants.geojson Same, as GeoJSON points.\n"
+            "  van_udyan_species.csv            Deduplicated species list with observation counts.\n\n"
+            "A note on numbers\n"
+            "-----------------\n"
+            "Record counts measure how often something was observed, not how abundant it is.\n"
+            "Areas with no records are monitoring gaps, not areas without plants.\n\n"
+            "Credits\n"
+            "-------\n"
+            "iNaturalist contributors (reference records), Pl@ntNet (AI identification),\n"
+            "OpenStreetMap (base map), RSWF volunteers (field photos).\n"
+            "Open data — reuse welcome; please credit RSWF when citing.\n"
+        )
+
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            zip_file.writestr("README.txt", readme)
             zip_file.writestr("van_udyan_observations.csv", obs_csv)
             zip_file.writestr("van_udyan_planted_plants.csv", planted_csv)
             zip_file.writestr("van_udyan_species.csv", species_csv)
