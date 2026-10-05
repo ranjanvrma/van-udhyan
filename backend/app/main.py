@@ -123,6 +123,20 @@ app.include_router(health.router)
 
 # Register API v1 Routers
 api_v1_prefix = settings.API_V1_STR
+
+# Dashboard unlock dialog hits /api/v1/auth/verify — expose the health router's
+# /auth/verify endpoint under the versioned prefix as well
+from fastapi import APIRouter as _APIRouter, Depends as _Depends
+from fastapi.responses import Response as _Response
+from app.core.security import verify_ngo_admin_password as _verify_pw
+_auth_router = _APIRouter(tags=["Auth"])
+
+@_auth_router.post("/auth/verify", include_in_schema=False)
+def _auth_verify(_: str = _Depends(_verify_pw)):
+    return _Response(status_code=204)
+
+app.include_router(_auth_router, prefix=api_v1_prefix)
+
 app.include_router(observations.router, prefix=api_v1_prefix)
 app.include_router(species.router, prefix=api_v1_prefix)
 app.include_router(zones.router, prefix=api_v1_prefix)
