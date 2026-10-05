@@ -5,10 +5,12 @@ photo serving layer, and exposes health and readiness endpoints.
 """
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 from PIL import Image, ImageOps
 import logging
 import sys
@@ -58,10 +60,46 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+    allow_headers=["Content-Type", "Authorization", "X-NGO-Admin-Password", "X-Requested-With"],
     expose_headers=["Content-Disposition"],
+    max_age=600,
 )
+
+
+# ---------------------------------------------------------------------------
+# Security hardening middleware
+# ---------------------------------------------------------------------------
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Attach a conservative set of security headers to every response.
+
+    - X-Content-Type-Options: nosniff — prevents MIME sniffing attacks.
+    - X-Frame-Options: DENY — prevents clickjacking of API/docs pages.
+    - Referrer-Policy: strict-origin-when-cross-origin — don't leak paths.
+    - Permissions-Policy — explicitly deny powerful APIs we never use.
+    - Strict-Transport-Security — HSTS, only on HTTPS requests.
+    - Cross-Origin-Resource-Policy: cross-origin — our frontend lives on a
+      different Render subdomain and must be able to load exports/photos.
+    """
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault(
+            "Permissions-Policy",
+            "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+        )
+        response.headers.setdefault("Cross-Origin-Resource-Policy", "cross-origin")
+        if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
+            response.headers.setdefault(
+                "Strict-Transport-Security",
+                "max-age=31536000; includeSubDomains",
+            )
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Photo storage: local filesystem by default; Supabase Storage when its env vars are set.
 # Local mode mounts /uploads directly from the uploads directory for the fastest possible transfer.
