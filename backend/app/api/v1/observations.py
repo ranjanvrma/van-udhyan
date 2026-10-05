@@ -59,11 +59,19 @@ def get_observation_detail(id: int, db: Session = Depends(get_db)):
     return record
 
 @router.post("/ngo", response_model=ObservationResponse, status_code=status.HTTP_201_CREATED)
-def create_ngo_observation(obs_data: NGOObservationCreate):
+def create_ngo_observation(
+    obs_data: NGOObservationCreate,
+    allow_nearby_duplicate: bool = Query(
+        False,
+        description="Override the 1 metre same-plant guard (see /observations/upload for details).",
+    ),
+):
     """Create a new NGO-owned field observation record (source = 'NGO / New Upload')."""
     try:
-        record = DataService.create_ngo_observation(obs_data.model_dump())
+        record = DataService.create_ngo_observation(obs_data.model_dump(), allow_nearby_duplicate=allow_nearby_duplicate)
         return record
+    except DuplicateObservationError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.to_detail())
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

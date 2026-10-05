@@ -60,6 +60,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
 )
 
 # Photo storage: local filesystem by default; Supabase Storage when its env vars are set.

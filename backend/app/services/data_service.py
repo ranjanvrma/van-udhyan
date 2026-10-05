@@ -703,7 +703,8 @@ class DataService:
         if not is_inside:
             raise ValueError(f"Coordinates ({lat}, {lng}) are outside the Bavdhan Van Udyan project boundary polygon.")
 
-        assigned_zone = data.get("zone_code") or auto_zone
+        # Boundary check is authoritative: ignore user-supplied zone_code if it disagrees
+        assigned_zone = auto_zone
 
         new_id = max([r["id"] for r in records], default=0) + 1
         watering_interval = data.get("watering_interval_days")
@@ -805,7 +806,8 @@ class DataService:
                 raise ValueError(f"Updated coordinates ({lat_val}, {lng_val}) are outside Van Udyan boundary polygon.")
             current["latitude"] = lat_val
             current["longitude"] = lng_val
-            current["zone_code"] = update_data.get("zone_code") or auto_zone
+            # Boundary check is authoritative on zone assignment
+            current["zone_code"] = auto_zone
 
         for field in ["plant_code", "scientific_name", "common_name", "planted_on", "notes", "photo_url", "last_watered_on"]:
             if field in update_data and update_data[field] is not None:
@@ -830,7 +832,7 @@ class DataService:
         return True
 
     @staticmethod
-    def create_ngo_observation(data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_ngo_observation(data: Dict[str, Any], allow_nearby_duplicate: bool = False) -> Dict[str, Any]:
         lat, lng = float(data["latitude"]), float(data["longitude"])
         is_inside, auto_zone = validate_coordinates_location(lat, lng)
         if not is_inside:
@@ -843,14 +845,14 @@ class DataService:
             return s if s else None
 
         records = load_clean_csv_records()
-        ngo_records = []
-        ngo_store_path = os.path.join(get_base_dir(), "data", "processed", "ngo_observations_store.json")
-        if os.path.exists(ngo_store_path):
-            try:
-                with open(ngo_store_path, "r", encoding="utf-8") as f:
-                    ngo_records = json.load(f)
-            except Exception:
-                pass
+        ngo_records = load_ngo_observations_store()
+
+        # 1-metre same-plant guard — the manual sighting path has to honour the same rule
+        # the photo-upload path does, otherwise users can accidentally create duplicate records
+        # by typing the same coordinates twice.
+        nearby_plant = find_same_plant_observation(ngo_records, lat, lng)
+        if nearby_plant and not allow_nearby_duplicate:
+            raise same_plant_error(nearby_plant)
 
         new_id = max([r["id"] for r in records], default=227) + 1
 
@@ -1586,12 +1588,23 @@ class DataService:
                     r["common_name"] = verified_com
                     r["identification_status"] = status_code
                     r["quality_grade"] = quality_grade
-                    # Keep earlier provenance notes (e.g. import details); append the reviewer's note
-                    existing_notes = r.get("verification_notes")
-                    if notes and existing_notes:
-                        r["verification_notes"] = f"{existing_notes}\nReview ({decision_clean}): {notes}"
-                    elif notes:
-                        r["verification_notes"] = notes
+                    # Strip stale "Not yet confirmed" phrases once the record is reviewed
+                    existing_notes = (r.get("verification_notes") or "").strip()
+                    if decision_clean in ("confirm", "correct"):
+                        import re as _re
+                        existing_notes = _re.sub(
+                            r"Not yet confirmed by RSWF\.?",
+                            "",
+                            existing_notes,
+                            flags=_re.IGNORECASE,
+                        ).strip(" \n\t.;,")
+                    review_line = f"Review ({decision_clean}): {notes}" if notes else None
+                    if review_line and existing_notes:
+                        r["verification_notes"] = f"{existing_notes}\n{review_line}"
+                    elif review_line:
+                        r["verification_notes"] = review_line
+                    else:
+                        r["verification_notes"] = existing_notes or None
                     break
 
             with open(ngo_store_path, "w", encoding="utf-8") as f:

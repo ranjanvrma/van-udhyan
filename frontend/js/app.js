@@ -298,7 +298,16 @@ const App = {
         this.pendingAction = actionCallback;
         const passInput = document.getElementById("ngo-auth-password");
         const errDiv = document.getElementById("auth-error-msg");
-        if (passInput) passInput.value = "";
+        const toggle = document.getElementById("ngo-auth-password-toggle");
+        if (passInput) {
+            passInput.value = "";
+            // Always open with the password hidden, even if the user left it visible last time.
+            passInput.type = "password";
+        }
+        if (toggle) {
+            toggle.setAttribute("aria-pressed", "false");
+            toggle.setAttribute("aria-label", "Show password");
+        }
         if (errDiv) errDiv.style.display = "none";
         document.getElementById("ngo-auth-modal").style.display = "flex";
         if (passInput) passInput.focus();
@@ -307,6 +316,26 @@ const App = {
     closeAuthModal() {
         this.pendingAction = null;
         document.getElementById("ngo-auth-modal").style.display = "none";
+    },
+
+    // Flip the input between type=password and type=text so the user can double-check their typing.
+    // Preserves the caret position and keeps focus so typing can continue uninterrupted.
+    togglePasswordVisibility(inputId, buttonEl) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const willShow = input.type === "password";
+        const caret = input.selectionStart;
+        input.type = willShow ? "text" : "password";
+        if (buttonEl) {
+            buttonEl.setAttribute("aria-pressed", String(willShow));
+            buttonEl.setAttribute("aria-label", willShow ? "Hide password" : "Show password");
+            buttonEl.title = willShow ? "Hide password" : "Show password";
+        }
+        // Firefox / Safari drop focus when type changes; restore it.
+        try {
+            input.focus();
+            if (caret != null) input.setSelectionRange(caret, caret);
+        } catch (_) {}
     },
 
     async handleAuthSubmit(e) {
@@ -416,6 +445,14 @@ const App = {
             }
             this.showErrorBanner("Cannot reach the data server. Make sure the backend is running (http://localhost:8000), then press Retry.");
         }
+    },
+
+    // Re-runs the loader for the tab currently on screen; wired to the Retry button in the
+    // top error banner so a transient failure (free-tier backend waking up) can be re-tried
+    // without a full page reload.
+    async retryCurrentTab() {
+        await this.checkBackendHealth();
+        await this.handleTabSwitch(this.currentTab || "overview");
     },
 
     async handleTabSwitch(tabName) {
@@ -735,7 +772,7 @@ const App = {
                 const popupContent = `
                     <div>
                         <div class="popup-title">${this.esc(props.common_name || props.scientific_name || "Unidentified plant")}</div>
-                        ${photo ? `<a href="${this.esc(photo)}" target="_blank" rel="noopener"><img class="popup-photo" src="${this.esc(thumb)}" alt="Observation photo" loading="lazy"></a>` : ""}
+                        ${photo ? `<a href="${this.esc(photo)}" target="_blank" rel="noopener"><img class="popup-photo" src="${this.esc(thumb)}" alt="Observation photo" loading="lazy" onerror="App.replaceMissingPhoto(this.parentElement, 'popup-photo-empty', '📷 Photo file missing')"></a>` : ""}
                         ${popupRow("Scientific name", props.scientific_name ? `<i>${this.esc(props.scientific_name)}</i>` : "Not identified yet")}
                         ${popupRow("Observed", this.esc(props.observed_on))}
                         ${popupRow("Observer", this.esc(props.observer))}
@@ -908,11 +945,21 @@ const App = {
         const container = document.getElementById("zones-cards-container");
         if (!container) return;
 
+        // Every call wrapped in catch so one slow endpoint doesn't blank the whole tab.
+        // Analytics / coverage are enrichment; the zone polygons from /zones are the backbone.
         const [zones, analytics, coverage] = await Promise.all([
-            ApiService.getZones(),
+            ApiService.getZones().catch(() => []),
             ApiService.getAnalyticsZones().catch(() => ({ zones: {} })),
             ApiService.getAnalyticsCoverage().catch(() => null)
         ]);
+        if (!zones || !zones.length) {
+            container.innerHTML = `
+                <div class="loading-text" style="grid-column:1/-1">
+                    Could not load zone boundaries. The data server may be waking up.
+                    <button class="btn-action" style="margin-left:0.5rem" onclick="App.loadZones()">Retry</button>
+                </div>`;
+            return;
+        }
         const stats = (analytics && analytics.zones) || {};
         const colors = { "ZONE A": "#10b981", "ZONE B": "#3b82f6", "ZONE C": "#8b5cf6" };
 
@@ -1157,6 +1204,8 @@ const App = {
             document.getElementById("form-latitude").value = plant.latitude || "";
             document.getElementById("form-longitude").value = plant.longitude || "";
             document.getElementById("form-zone-code").value = plant.zone_code || "";
+            document.getElementById("form-watering-interval").value = plant.watering_interval_days ?? "";
+            document.getElementById("form-last-watered-on").value = plant.last_watered_on || "";
             document.getElementById("form-notes").value = plant.notes || "";
 
             document.getElementById("plant-modal").style.display = "flex";
@@ -1199,6 +1248,11 @@ const App = {
             latitude: parseFloat(document.getElementById("form-latitude").value),
             longitude: parseFloat(document.getElementById("form-longitude").value),
             zone_code: document.getElementById("form-zone-code").value || null,
+            watering_interval_days: (() => {
+                const v = document.getElementById("form-watering-interval").value;
+                return v === "" ? null : parseInt(v, 10);
+            })(),
+            last_watered_on: document.getElementById("form-last-watered-on").value || null,
             notes: document.getElementById("form-notes").value.trim() || null,
             photo_url: uploadedPhotoUrl || document.getElementById("form-photo-url")?.value || null
         };
@@ -1350,13 +1404,41 @@ const App = {
             photo_url: uploadedPhotoUrl || document.getElementById("ngo-photo-url")?.value || null
         };
 
+        await this._submitNgoSighting(payload, { allowNearbyDuplicate: false });
+    },
+
+    // Shared submit used by both the initial save and the "record anyway" override
+    // when the 1-metre same-plant guard fires.
+    async _submitNgoSighting(payload, { allowNearbyDuplicate }) {
         try {
-            const created = await ApiService.createNGOObservation(payload);
+            const created = await ApiService.createNGOObservation(payload, { allowNearbyDuplicate });
             this.closeNgoObsModal();
             this.notify(`📝 Field sighting saved${created && created.id ? ` as observation #${created.id}` : ""}.`);
             await this.loadObservations();
             await this.loadOverview();
         } catch (err) {
+            if (err && err.duplicate) {
+                const d = err.duplicate;
+                if (d.overridable) {
+                    this._pendingNgoSightingPayload = payload;
+                    const name = d.scientific_name ? `(${d.scientific_name})` : "";
+                    const ok = confirm(
+                        `A plant ${name} is already recorded within 1 metre of this spot as Observation #${d.existing_observation_id}.\n\n` +
+                        `This is probably the same plant.\n\n` +
+                        `Click OK only if two plants really do grow this close together, and you want to record a second one.`
+                    );
+                    if (ok) {
+                        this.notify("Recording as a separate plant anyway...", "warning", 3000);
+                        await this._submitNgoSighting(payload, { allowNearbyDuplicate: true });
+                    } else {
+                        this.closeNgoObsModal();
+                        this.notify(`Linked to existing observation #${d.existing_observation_id} — no new record created.`);
+                    }
+                } else {
+                    this.notify(`This observation already exists (#${d.existing_observation_id}).`, "warning", 7000);
+                }
+                return;
+            }
             this.notify(`Could not save the field sighting: ${err.message}`, "error", 7000);
         }
     },
@@ -1471,6 +1553,8 @@ const App = {
             if (res.photo_url) {
                 const fullPhotoUrl = window.APP_CONFIG.getEndpoint(res.photo_url);
                 resultPreview.src = fullPhotoUrl;
+                resultPreview.alt = "Uploaded photo";
+                resultPreview.onerror = () => { resultPreview.style.display = "none"; };
                 resultPreview.style.display = "block";
             }
 
@@ -1703,6 +1787,8 @@ const App = {
 
         if (dup.photo_url) {
             resultPreview.src = window.APP_CONFIG.getEndpoint(dup.photo_url);
+            resultPreview.alt = "Existing photo";
+            resultPreview.onerror = () => { resultPreview.style.display = "none"; };
             resultPreview.style.display = "block";
         } else {
             resultPreview.style.display = "none";
