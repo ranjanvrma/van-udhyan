@@ -61,8 +61,13 @@ html body {
     text-rendering: optimizeLegibility;
 }
 
-/* All ambient FX elements that index.html still ships: hide outright */
+/* Legacy ambient FX layers (removed from HTML, kept here as a safety net) */
 #fx-canvas, .fx-grain, .fx-vignette { display: none !important; }
+
+/* Nuke any body::before/::after decorations from the earlier themes.
+   Those were fixed-position radial-gradient layers that forced repaint
+   on every scroll — invisible benefit, measurable cost. */
+html body::before, html body::after { content: none !important; display: none !important; }
 
 /* App shell */
 html body .app-container {
