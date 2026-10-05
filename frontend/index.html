@@ -7,15 +7,18 @@
     <meta name="description" content="Biodiversity mapping and conservation monitoring for Bavdhan Van Udyan, Pune, by RSWF.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Fraunces (display serif) · Inter (body) · JetBrains Mono (data) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     <!-- Leaflet GIS CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
-    <!-- Custom Dashboard Styles -->
+    <!-- Verdant Atlas Theme (v2) -->
+    <link rel="stylesheet" href="css/theme-verdant.css?v=1">
+
+    <!-- Legacy base styles (kept for compatibility; theme-verdant overrides) -->
     <link rel="stylesheet" href="css/styles.css?v=5">
 
     <!-- Chart.js & Leaflet JS CDN Libraries -->
@@ -23,6 +26,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
 <body>
+<!-- Ambient background canvas (particles + topography lines) -->
+<canvas id="fx-canvas" aria-hidden="true"></canvas>
+<div class="fx-grain" aria-hidden="true"></div>
+<div class="fx-vignette" aria-hidden="true"></div>
 
 <div class="app-container">
 
@@ -935,6 +942,9 @@
 <script src="js/config.js?v=6"></script>
 <script src="js/api.js?v=8"></script>
 <script src="js/app.js?v=8"></script>
+
+<!-- Verdant Atlas FX: ambient canvas, 3D tilt, scroll reveal, magnetic buttons -->
+<script src="js/ui-fx.js?v=1" defer></script>
 
 </body>
 </html>
