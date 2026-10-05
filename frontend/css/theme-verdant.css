@@ -121,21 +121,17 @@ html body {
     mix-blend-mode: screen;
 }
 
-/* Topographic contour layer (pure CSS SVG) */
+/* Ambient background wash — static radial gradients only, no SVG
+   contour layer any more (it was a non-trivial per-scroll repaint). */
 html body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.35;
     background-image:
-        radial-gradient(1200px 700px at 15% 10%, rgba(34, 197, 94, 0.14), transparent 60%),
-        radial-gradient(900px 500px at 90% 85%, rgba(14, 165, 233, 0.1), transparent 60%),
-        radial-gradient(700px 500px at 50% 50%, rgba(192, 132, 252, 0.06), transparent 70%),
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'><g fill='none' stroke='%2322C55E' stroke-opacity='0.08' stroke-width='1'><path d='M-50 300 Q 400 160 820 320 T 1700 240'/><path d='M-50 400 Q 400 260 820 420 T 1700 340'/><path d='M-50 500 Q 400 360 820 520 T 1700 440'/><path d='M-50 600 Q 400 460 820 620 T 1700 540'/><path d='M-50 700 Q 400 560 820 720 T 1700 640'/><path d='M-50 200 Q 400 60 820 220 T 1700 140'/></g></svg>");
-    background-size: cover, cover, cover, cover;
-    background-position: center;
+        radial-gradient(1200px 700px at 15% 10%, rgba(34, 197, 94, 0.12), transparent 60%),
+        radial-gradient(900px 500px at 90% 85%, rgba(14, 165, 233, 0.08), transparent 60%);
 }
 
 /* Film grain (noise overlay) */
@@ -188,7 +184,8 @@ html body .sidebar {
     box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
-/* Glowing spine running along the right edge */
+/* Glowing spine running along the right edge (static — animation
+   removed to free up compositor cycles) */
 html body .sidebar::after {
     content: "";
     position: absolute;
@@ -197,13 +194,7 @@ html body .sidebar::after {
     right: -1px;
     width: 1px;
     background: linear-gradient(180deg, transparent, var(--v-leaf) 50%, transparent);
-    opacity: 0.6;
-    filter: blur(0.5px);
-    animation: v-spine 6s var(--v-ease-in-out) infinite;
-}
-@keyframes v-spine {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.8; }
+    opacity: 0.5;
 }
 
 /* Brand mark — serif + wordmark */
@@ -234,11 +225,10 @@ html body .brand-icon::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: conic-gradient(from 180deg, rgba(255,255,255,0.3), transparent 40%, rgba(255,255,255,0.1) 70%, transparent);
-    animation: v-rotate 8s linear infinite;
+    background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 55%);
+    pointer-events: none;
 }
-html body .brand-icon:hover { transform: rotate(0) scale(1.08); }
-@keyframes v-rotate { to { transform: rotate(360deg); } }
+html body .brand-icon:hover { transform: rotate(0) scale(1.06); }
 
 html body .brand-title {
     font-family: var(--v-font-display);
@@ -432,12 +422,12 @@ html body .source-badge .dot {
     height: 9px;
     border-radius: 50%;
     background: var(--v-leaf);
-    box-shadow: 0 0 12px var(--v-leaf);
-    animation: v-pulse 1.8s var(--v-ease-in-out) infinite;
+    box-shadow: 0 0 10px var(--v-leaf);
+    animation: v-pulse 2.4s ease-in-out infinite;
 }
 @keyframes v-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 20px var(--v-leaf); }
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
 }
 html body .source-badge.offline .dot { background: var(--v-berry); box-shadow: 0 0 12px var(--v-berry); }
 
@@ -509,33 +499,29 @@ html body .kpi-card {
     gap: 0.6rem;
     overflow: hidden;
     isolation: isolate;
-    transform-style: preserve-3d;
-    transition: transform var(--v-t-base) var(--v-ease-out),
-                border-color var(--v-t-base),
-                box-shadow var(--v-t-base);
+    transition: transform 240ms var(--v-ease-out),
+                border-color 240ms var(--v-ease-out);
     box-shadow: var(--v-shadow-md), inset 0 1px 0 rgba(255,255,255,0.04);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    will-change: transform;
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    contain: layout style;
 }
 
-/* Animated conic border — only on hover to save CPU */
+/* Soft tinted glow halo on hover (no animation — animated conic borders
+   force a full repaint every frame and torched our 60fps budget) */
 html body .kpi-card::before {
     content: "";
     position: absolute;
-    inset: -2px;
-    border-radius: calc(var(--v-r-lg) + 2px);
-    background: var(--v-grad-border);
+    inset: -1px;
+    border-radius: calc(var(--v-r-lg) + 1px);
+    background: linear-gradient(135deg, rgba(34,197,94,0.5), rgba(56,189,248,0.4), rgba(192,132,252,0.35));
     z-index: -1;
     opacity: 0;
-    transition: opacity var(--v-t-base);
-    filter: blur(14px);
+    transition: opacity 240ms var(--v-ease-out);
+    filter: blur(12px);
+    pointer-events: none;
 }
-html body .kpi-card:hover::before {
-    opacity: 0.65;
-    animation: v-spin 4s linear infinite;
-}
-@keyframes v-spin { to { --angle: 360deg; } }
+html body .kpi-card:hover::before { opacity: 0.55; }
 
 /* Specular highlight sheet */
 html body .kpi-card::after {
@@ -548,12 +534,11 @@ html body .kpi-card::after {
 }
 
 html body .kpi-card:hover {
-    transform: translateY(-6px) rotateX(2deg);
+    transform: translateY(-4px);
     border-color: var(--v-stroke-strong);
-    box-shadow: var(--v-shadow-lg), 0 20px 40px -10px rgba(34, 197, 94, 0.25);
 }
 html body .kpi-card.clickable { cursor: pointer; }
-html body .kpi-card.clickable:active { transform: translateY(-2px) scale(0.995); }
+html body .kpi-card.clickable:active { transform: translateY(-1px) scale(0.995); }
 
 html body .kpi-label {
     font-family: var(--v-font-body);
@@ -602,14 +587,14 @@ html body .table-card {
         linear-gradient(180deg, var(--v-surface-raised), var(--v-surface));
     border: 1px solid var(--v-stroke);
     border-radius: var(--v-r-lg);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
     box-shadow: var(--v-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     position: relative;
     overflow: hidden;
-    transition: transform var(--v-t-base) var(--v-ease-out),
-                border-color var(--v-t-base),
-                box-shadow var(--v-t-base);
+    transition: transform 240ms var(--v-ease-out),
+                border-color 240ms var(--v-ease-out);
+    contain: layout style;
 }
 html body .chart-card::before,
 html body .panel::before,
@@ -1165,19 +1150,20 @@ html body [data-reveal].visible {
    get this; mobile also uses it for the floating tab bar.
    ================================================================== */
 :root {
-    --lg-bg: rgba(14, 32, 25, 0.42);
-    --lg-bg-strong: rgba(14, 32, 25, 0.58);
-    --lg-blur: blur(28px) saturate(180%) brightness(1.08);
-    --lg-blur-strong: blur(40px) saturate(200%) brightness(1.1);
+    /* Liquid-glass tokens tuned for 120+Hz smoothness: shallow blur,
+       light saturation, cheap single-pass shadow. The specular inset
+       highlights do most of the "glass" work visually. */
+    --lg-bg: rgba(14, 32, 25, 0.72);
+    --lg-bg-strong: rgba(14, 32, 25, 0.82);
+    --lg-blur: blur(10px) saturate(140%);
+    --lg-blur-strong: blur(16px) saturate(150%);
     --lg-border: 1px solid rgba(255, 255, 255, 0.08);
     --lg-border-strong: 1px solid rgba(255, 255, 255, 0.14);
-    --lg-highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    --lg-highlight-side: inset 1px 0 0 rgba(255, 255, 255, 0.06), inset -1px 0 0 rgba(0, 0, 0, 0.1);
-    --lg-depth: inset 0 -1px 1px rgba(0, 0, 0, 0.25);
-    --lg-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.5),
-                 0 2px 6px rgba(0, 0, 0, 0.25);
-    --lg-shadow-float: 0 24px 60px -12px rgba(0, 0, 0, 0.6),
-                       0 6px 12px rgba(0, 0, 0, 0.3);
+    --lg-highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    --lg-highlight-side: inset 1px 0 0 rgba(255, 255, 255, 0.04);
+    --lg-depth: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    --lg-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.45);
+    --lg-shadow-float: 0 16px 36px -14px rgba(0, 0, 0, 0.55);
 }
 
 html body .kpi-card,
@@ -1282,16 +1268,18 @@ html body .export-card:hover {
         padding: 7px;
         border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 24px;
-        background: rgba(10, 24, 18, 0.55);
-        backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
-        -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
+        /* Mobile tab bar uses a near-opaque background instead of a thick
+           blur — backdrop-filter is the single biggest mobile perf hit */
+        background: rgba(10, 24, 18, 0.92);
+        backdrop-filter: blur(12px) saturate(140%);
+        -webkit-backdrop-filter: blur(12px) saturate(140%);
         box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.2),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-            0 20px 60px -10px rgba(0, 0, 0, 0.65),
-            0 8px 20px rgba(0, 0, 0, 0.35);
+            inset 0 1px 0 rgba(255, 255, 255, 0.14),
+            0 10px 30px rgba(0, 0, 0, 0.5);
         z-index: 1000;
         overflow: visible;
+        contain: layout style;
+        transform: translateZ(0);  /* promote to its own compositor layer */
     }
     html body .sidebar::after { display: none; }
     html body .brand-header { display: none; }
@@ -1609,10 +1597,43 @@ html body .export-card:hover {
         border-radius: 16px;
     }
 
-    /* Dampen ambient FX for perf */
-    #fx-canvas { opacity: 0.35; }
-    .fx-grain { opacity: 0.04; }
-    html body::before { opacity: 0.22; }
+    /* ----- Perf: strip blur from every scrolling card on mobile ----- */
+    html body .kpi-card,
+    html body .chart-card,
+    html body .panel,
+    html body .zone-card,
+    html body .export-card,
+    html body .map-card,
+    html body .table-card,
+    html body .action-card,
+    html body .note-card,
+    html body .zone-stat {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(14, 32, 25, 0.88);
+    }
+    /* Modals keep a shallow blur — only one visible at a time */
+    html body .modal-card {
+        backdrop-filter: blur(14px) saturate(140%);
+        -webkit-backdrop-filter: blur(14px) saturate(140%);
+        background: rgba(14, 32, 25, 0.95);
+    }
+    /* No hover-lift on touch (hover state fires on tap and sticks) */
+    html body .kpi-card:hover,
+    html body .zone-card:hover,
+    html body .export-card:hover,
+    html body .chart-card:hover {
+        transform: none;
+        background: rgba(14, 32, 25, 0.88);
+    }
+    html body .kpi-card::before { display: none; }
+    html body .btn-primary::before { display: none; }
+
+    /* Kill the ambient canvas on mobile — it's expensive and the
+       bottom tab bar + content already covers most of the screen */
+    #fx-canvas { display: none; }
+    .fx-grain { display: none; }
+    html body::before { opacity: 0.15; }
 }
 
 @media (max-width: 420px) {
