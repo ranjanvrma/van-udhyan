@@ -1157,41 +1157,476 @@ html body [data-reveal].visible {
     transform: none;
 }
 
-/* ------------------------------------------------------------------
-   MOBILE
-------------------------------------------------------------------- */
+/* ===================================================================
+   LIQUID GLASS LAYER
+   Apple-vision-pro-style translucent surfaces: thick blur with
+   saturation + brightness bump, specular top-highlight line, inner
+   bottom shadow for depth, soft reflective edge. All desktop surfaces
+   get this; mobile also uses it for the floating tab bar.
+   ================================================================== */
+:root {
+    --lg-bg: rgba(14, 32, 25, 0.42);
+    --lg-bg-strong: rgba(14, 32, 25, 0.58);
+    --lg-blur: blur(28px) saturate(180%) brightness(1.08);
+    --lg-blur-strong: blur(40px) saturate(200%) brightness(1.1);
+    --lg-border: 1px solid rgba(255, 255, 255, 0.08);
+    --lg-border-strong: 1px solid rgba(255, 255, 255, 0.14);
+    --lg-highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    --lg-highlight-side: inset 1px 0 0 rgba(255, 255, 255, 0.06), inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    --lg-depth: inset 0 -1px 1px rgba(0, 0, 0, 0.25);
+    --lg-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.5),
+                 0 2px 6px rgba(0, 0, 0, 0.25);
+    --lg-shadow-float: 0 24px 60px -12px rgba(0, 0, 0, 0.6),
+                       0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+html body .kpi-card,
+html body .chart-card,
+html body .panel,
+html body .zone-card,
+html body .export-card,
+html body .map-card,
+html body .table-card,
+html body .modal-card,
+html body .auth-btn,
+html body .source-badge,
+html body .btn-action,
+html body .pagination-btn {
+    background: var(--lg-bg);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    box-shadow:
+        var(--lg-highlight-top),
+        var(--lg-highlight-side),
+        var(--lg-depth),
+        var(--lg-shadow);
+    border: var(--lg-border);
+}
+
+html body .modal-card {
+    background: var(--lg-bg-strong);
+    backdrop-filter: var(--lg-blur-strong);
+    -webkit-backdrop-filter: var(--lg-blur-strong);
+    box-shadow:
+        var(--lg-highlight-top),
+        var(--lg-highlight-side),
+        0 40px 100px -20px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(74, 222, 128, 0.1);
+}
+
+html body .top-header,
+html body .sidebar {
+    background: var(--lg-bg);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    box-shadow: var(--lg-highlight-top), 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Thick highlight on the primary buttons so they feel "lit from above" */
+html body .btn-primary {
+    box-shadow:
+        0 12px 28px -10px rgba(34, 197, 94, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Soft frosted hover glow on glass surfaces */
+html body .kpi-card:hover,
+html body .zone-card:hover,
+html body .export-card:hover {
+    background: rgba(20, 42, 32, 0.52);
+    box-shadow:
+        var(--lg-highlight-top),
+        var(--lg-highlight-side),
+        var(--lg-depth),
+        var(--lg-shadow-float),
+        0 20px 40px -10px rgba(34, 197, 94, 0.25);
+}
+
+/* ===================================================================
+   MOBILE — complete redesign
+   iOS-style floating liquid-glass bottom tab bar, compact sticky top
+   header, bottom-sheet modals, edge-to-edge cards, bigger touch
+   targets, horizontally-paged KPIs.
+   ================================================================== */
 @media (max-width: 1024px) {
+    /* App shell: stack vertically */
+    html body .app-container {
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Main scroll area reserves space for the floating bottom nav */
+    html body .main-content {
+        height: 100vh;
+        padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* -----------------------------------------------------------------
+       Sidebar → floating liquid-glass bottom tab bar
+    ----------------------------------------------------------------- */
     html body .sidebar {
-        width: 100%;
+        position: fixed !important;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        left: 10px;
+        right: 10px;
+        top: auto;
+        width: auto;
+        height: 68px;
+        min-height: 68px;
         flex-direction: row;
         align-items: center;
-        padding: 0.75rem 1rem;
-        border-right: none;
-        border-bottom: 1px solid var(--v-stroke);
+        padding: 7px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 24px;
+        background: rgba(10, 24, 18, 0.55);
+        backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
+        -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+            0 20px 60px -10px rgba(0, 0, 0, 0.65),
+            0 8px 20px rgba(0, 0, 0, 0.35);
+        z-index: 1000;
+        overflow: visible;
     }
-    html body .brand-header { margin: 0; padding: 0; border: none; }
-    html body .brand-title, html body .brand-subtitle { display: none; }
     html body .sidebar::after { display: none; }
-    html body .nav-list { flex-direction: row; overflow-x: auto; gap: 0.35rem; }
-    html body .nav-list::-webkit-scrollbar { display: none; }
-    html body .nav-item button { white-space: nowrap; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
-    html body .nav-item button::after { display: none; }
+    html body .brand-header { display: none; }
     html body .sidebar-footer { display: none; }
-    html body .main-content { height: auto; overflow: visible; }
-    html body .top-header { position: static; padding: 1.25rem 1rem; }
-    html body .header-title h1 { font-size: 1.4rem; }
-    html body .tab-pane { padding: 1.25rem; }
-}
-@media (max-width: 600px) {
-    html body .kpi-value { font-size: 2.1rem; }
-    html body .section-header h2 { font-size: 1.4rem; }
-    html body .kpi-card, html body .chart-card, html body .panel, html body .zone-card, html body .export-card {
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+
+    /* Nav list: equal-width tap targets, no scroll indicator */
+    html body .nav-list {
+        display: flex;
+        flex-direction: row;
+        gap: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        scroll-snap-type: x proximity;
     }
+    html body .nav-list::-webkit-scrollbar { display: none; }
+
+    html body .nav-item {
+        flex: 1 0 auto;
+        min-width: 62px;
+        scroll-snap-align: center;
+    }
+
+    html body .nav-item button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        width: 100%;
+        height: 54px;
+        padding: 6px 4px 5px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--v-text-dim);
+        font-size: 0.6rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-align: center;
+        line-height: 1;
+        transition: all 220ms var(--v-ease-out);
+    }
+    html body .nav-item button span {
+        width: auto;
+        font-size: 1.25rem;
+        line-height: 1;
+        filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3));
+    }
+    html body .nav-item button::before,
+    html body .nav-item button::after { display: none; }
+
+    html body .nav-item button:hover {
+        transform: none;
+        color: var(--v-text);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: transparent;
+    }
+
+    html body .nav-item button.active {
+        color: var(--v-leaf-bright);
+        background: linear-gradient(180deg, rgba(34, 197, 94, 0.28), rgba(34, 197, 94, 0.08));
+        border-color: rgba(74, 222, 128, 0.3);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.18),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+            0 4px 12px -4px rgba(34, 197, 94, 0.5),
+            0 0 20px rgba(34, 197, 94, 0.25);
+    }
+    html body .nav-item button.active span {
+        filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.6));
+    }
+
+    /* -----------------------------------------------------------------
+       Top header: compact sticky
+    ----------------------------------------------------------------- */
+    html body .top-header {
+        position: sticky;
+        top: 0;
+        padding: 14px 16px;
+        gap: 8px;
+        border-bottom: 1px solid var(--v-stroke-dim);
+    }
+    html body .header-title h1 {
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
+    }
+    html body .header-title p {
+        font-size: 0.72rem;
+        margin-top: 2px;
+    }
+    html body .header-actions {
+        gap: 6px;
+    }
+    html body .auth-btn,
+    html body .source-badge {
+        padding: 0.42rem 0.75rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+    }
+
+    /* -----------------------------------------------------------------
+       Tab panes & section headers
+    ----------------------------------------------------------------- */
+    html body .tab-pane {
+        padding: 1rem 1rem 2rem;
+        min-height: calc(100vh - 72px - 84px);
+    }
+    html body .section-header {
+        margin-bottom: 1.25rem;
+    }
+    html body .section-header h2 {
+        font-size: 1.4rem;
+        letter-spacing: -0.025em;
+    }
+    html body .section-header h2::after {
+        width: 36px;
+        bottom: -4px;
+    }
+    html body .section-header p {
+        margin-top: 0.6rem;
+        font-size: 0.85rem;
+    }
+    html body .section-actions {
+        width: 100%;
+        margin-top: 0.75rem;
+    }
+    html body .section-actions .btn-primary {
+        flex: 1;
+        min-width: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* -----------------------------------------------------------------
+       KPI cards: 2-up grid, compact
+    ----------------------------------------------------------------- */
+    html body .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.65rem;
+        margin-bottom: 1.5rem;
+    }
+    html body .kpi-card {
+        padding: 1rem 0.95rem;
+        border-radius: 16px;
+        gap: 0.3rem;
+    }
+    html body .kpi-card:hover {
+        transform: none;  /* no hover-lift on touch devices */
+    }
+    html body .kpi-label {
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+    }
+    html body .kpi-value {
+        font-size: 1.7rem;
+        letter-spacing: -0.03em;
+    }
+    html body .kpi-subtext {
+        font-size: 0.68rem;
+        line-height: 1.3;
+    }
+
+    /* Charts */
+    html body .charts-grid {
+        gap: 1rem;
+    }
+    html body .chart-card {
+        height: 280px;
+        padding: 1.1rem 1rem;
+        border-radius: 16px;
+    }
+    html body .chart-title { font-size: 1rem; }
+    html body .chart-subtitle { font-size: 0.75rem; margin-bottom: 0.75rem; }
+
+    /* Panels */
+    html body .panel {
+        padding: 1rem;
+        border-radius: 16px;
+        margin-bottom: 1rem;
+    }
+    html body .panel-header h3 { font-size: 1.05rem; }
+    html body .action-card { padding: 0.8rem 0.9rem; }
+
+    /* Note card */
+    html body .note-card {
+        padding: 0.85rem 1rem;
+        font-size: 0.82rem;
+        border-radius: 14px;
+    }
+
+    /* Zone / export cards */
+    html body .zone-card,
+    html body .export-card {
+        padding: 1.1rem 1.15rem;
+        border-radius: 18px;
+    }
+    html body .zone-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    html body .zone-stat {
+        padding: 0.55rem 0.65rem;
+        border-radius: 10px;
+    }
+    html body .zone-stat b { font-size: 1.15rem; }
+    html body .zone-stat span { font-size: 0.62rem; }
+
+    /* -----------------------------------------------------------------
+       Modals as bottom sheets
+    ----------------------------------------------------------------- */
+    html body .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+    html body .modal-card {
+        width: 100%;
+        max-width: 100%;
+        max-height: 92vh;
+        border-radius: 26px 26px 0 0;
+        padding: 1.75rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+        animation: v-sheet-in 0.4s var(--v-ease-spring);
+    }
+    html body .modal-card::before {
+        /* grab handle */
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 44px;
+        height: 4px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        pointer-events: none;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3) !important;
+    }
+    html body .modal-header {
+        padding-top: 0.5rem;
+    }
+    html body .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    html body .modal-footer {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+    html body .modal-footer button,
+    html body .modal-footer .btn-primary,
+    html body .modal-footer .btn-action {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+    }
+    html body .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    @keyframes v-sheet-in {
+        from { transform: translateY(100%); }
+        to { transform: none; }
+    }
+
+    /* -----------------------------------------------------------------
+       Tables: horizontal scroll, tighter padding
+    ----------------------------------------------------------------- */
+    html body .table-card { border-radius: 16px; }
+    html body .data-table { font-size: 0.82rem; }
+    html body .data-table th {
+        padding: 0.8rem 0.75rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.08em;
+    }
+    html body .data-table td {
+        padding: 0.75rem 0.75rem;
+    }
+    html body .obs-thumb,
+    html body .obs-thumb-empty {
+        width: 38px;
+        height: 38px;
+    }
+
+    /* Pagination */
+    html body .pagination-bar {
+        padding: 0.85rem 1rem;
+        font-size: 0.78rem;
+    }
+    html body .pagination-btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.78rem;
+    }
+
+    /* Controls bar inputs on mobile */
+    html body .controls-bar {
+        gap: 0.6rem;
+    }
+    html body .search-input,
+    html body .select-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    html body .search-wide,
+    html body .search-mid { width: 100%; }
+
+    /* Map */
+    html body .map-card {
+        height: calc(100vh - 220px);
+        min-height: 420px;
+        border-radius: 16px;
+    }
+
+    /* Dampen ambient FX for perf */
     #fx-canvas { opacity: 0.35; }
     .fx-grain { opacity: 0.04; }
-    html body::before { opacity: 0.2; }
+    html body::before { opacity: 0.22; }
+}
+
+@media (max-width: 420px) {
+    html body .kpi-value { font-size: 1.5rem; }
+    html body .section-header h2 { font-size: 1.25rem; }
+    html body .header-title h1 { font-size: 1.05rem; }
+    html body .header-title p { display: none; }
+    html body .nav-item { min-width: 56px; }
+    html body .nav-item button { font-size: 0.55rem; }
+    html body .nav-item button span { font-size: 1.15rem; }
+    html body .auth-btn, html body .source-badge {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.65rem;
+    }
 }
 
 /* ------------------------------------------------------------------
