@@ -71,8 +71,8 @@
     --v-t-base: 260ms;
     --v-t-slow: 480ms;
 
-    /* Typography */
-    --v-font-display: "Fraunces", "Playfair Display", ui-serif, Georgia, serif;
+    /* Typography — Inter throughout, mono reserved for numeric data */
+    --v-font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --v-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --v-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
 
@@ -242,22 +242,24 @@ html body .brand-icon:hover { transform: rotate(0) scale(1.08); }
 
 html body .brand-title {
     font-family: var(--v-font-display);
-    font-weight: 700;
-    font-size: 1.35rem;
-    letter-spacing: -0.015em;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
     color: var(--v-text);
     line-height: 1;
-    font-variation-settings: "opsz" 48;
 }
 html body .brand-subtitle {
     display: block;
     margin-top: 0.3rem;
     font-family: var(--v-font-body);
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--v-text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Nav items — animated ink wash on hover, active = fluorescent card */
@@ -370,11 +372,10 @@ html body .top-header {
 
 html body .header-title h1 {
     font-family: var(--v-font-display);
-    font-weight: 600;
-    font-size: 1.9rem;
-    letter-spacing: -0.025em;
+    font-weight: 800;
+    font-size: 1.75rem;
+    letter-spacing: -0.03em;
     line-height: 1.1;
-    font-variation-settings: "opsz" 72;
     background: var(--v-grad-text);
     -webkit-background-clip: text;
     background-clip: text;
@@ -459,10 +460,9 @@ html body .tab-pane.active {
 
 html body .section-header h2 {
     font-family: var(--v-font-display);
-    font-weight: 600;
-    font-size: 1.75rem;
-    letter-spacing: -0.02em;
-    font-variation-settings: "opsz" 60;
+    font-weight: 800;
+    font-size: 1.65rem;
+    letter-spacing: -0.028em;
     color: var(--v-text);
     position: relative;
     display: inline-block;
@@ -564,12 +564,11 @@ html body .kpi-label {
     color: var(--v-text-dim);
 }
 html body .kpi-value {
-    font-family: var(--v-font-display);
+    font-family: var(--v-font-mono);
     font-weight: 700;
-    font-size: 2.75rem;
+    font-size: 2.5rem;
     line-height: 1;
-    letter-spacing: -0.03em;
-    font-variation-settings: "opsz" 96;
+    letter-spacing: -0.04em;
     background: var(--v-grad-text);
     -webkit-background-clip: text;
     background-clip: text;
@@ -631,7 +630,6 @@ html body .chart-title {
     font-size: 1.15rem;
     letter-spacing: -0.01em;
     color: var(--v-text);
-    font-variation-settings: "opsz" 36;
 }
 html body .chart-subtitle { font-size: 0.82rem; color: var(--v-text-dim); margin-bottom: 1rem; }
 
@@ -642,7 +640,6 @@ html body .panel-header h3 {
     font-size: 1.2rem;
     letter-spacing: -0.01em;
     color: var(--v-text);
-    font-variation-settings: "opsz" 36;
 }
 html body .panel-tag {
     font-size: 0.72rem;
@@ -684,7 +681,6 @@ html body .zone-card-head h3 {
     font-weight: 600;
     font-size: 1.35rem;
     letter-spacing: -0.015em;
-    font-variation-settings: "opsz" 48;
 }
 html body .zone-stat {
     background: var(--v-surface-sunken);
@@ -713,7 +709,6 @@ html body .export-card h3 {
     font-weight: 600;
     font-size: 1.25rem;
     letter-spacing: -0.015em;
-    font-variation-settings: "opsz" 48;
 }
 html body .export-card:hover {
     transform: translateY(-6px);
@@ -762,7 +757,6 @@ html body .action-card-head b {
     font-family: var(--v-font-display);
     font-weight: 600;
     color: var(--v-text);
-    font-variation-settings: "opsz" 24;
 }
 
 /* ------------------------------------------------------------------
@@ -1071,10 +1065,9 @@ html body .modal-card::after {
 }
 html body .modal-header h3 {
     font-family: var(--v-font-display);
-    font-weight: 700;
-    font-size: 1.5rem;
-    letter-spacing: -0.02em;
-    font-variation-settings: "opsz" 72;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.025em;
     background: var(--v-grad-text);
     -webkit-background-clip: text;
     background-clip: text;
@@ -1101,7 +1094,6 @@ html body .map-header h3 {
     font-weight: 600;
     font-size: 1.2rem;
     color: var(--v-text);
-    font-variation-settings: "opsz" 36;
 }
 html body .legend-item { color: var(--v-text-dim); font-size: 0.82rem; }
 
@@ -1114,7 +1106,6 @@ html body .leaflet-popup-content-wrapper {
     box-shadow: 0 20px 40px -16px rgba(0,0,0,0.7) !important;
 }
 html body .leaflet-popup-tip { background: var(--v-ink-2) !important; border: 1px solid var(--v-stroke-strong) !important; }
-html body .popup-title { color: var(--v-leaf-bright); font-family: var(--v-font-display); font-weight: 700; font-variation-settings: "opsz" 36; }
 html body .popup-photo {
     border: 1px solid var(--v-stroke-strong);
     box-shadow: 0 8px 16px -8px rgba(0,0,0,0.6);
