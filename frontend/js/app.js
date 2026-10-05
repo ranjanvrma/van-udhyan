@@ -475,7 +475,14 @@ const App = {
                     await this.loadZones();
                     break;
                 case "watering":
+                    await this.loadWeather();
                     await this.loadWateringQueue();
+                    break;
+                case "insights":
+                    await this.loadInsights();
+                    break;
+                case "verify":
+                    await this.loadVerificationQueue();
                     break;
                 case "management":
                     await this.loadPlantedPlants();
@@ -864,7 +871,7 @@ const App = {
         };
 
         tbody.innerHTML = res.data.map(s => `
-            <tr>
+            <tr class="row-clickable" onclick="App.openSpeciesProfile('${this.esc(s.scientific_name).replace(/'/g, "\\'")}')">
                 <td class="faint">${s.id}</td>
                 <td><b><i>${this.esc(s.scientific_name)}</i></b></td>
                 <td>${s.common_name ? this.esc(s.common_name) : '<span class="faint">—</span>'}</td>
@@ -2223,6 +2230,375 @@ const App = {
     clearErrorBanner() {
         const banner = document.getElementById("global-error-banner");
         if (banner) banner.style.display = "none";
+    },
+
+    /* ================================================================
+       Phase-15 features: weather, insights, verify queue, species
+       profile, bulk upload, 3D terrain
+       ================================================================ */
+
+    // --- Weather widget (lives inside the Watering tab) ---
+    async loadWeather() {
+        const body = document.getElementById("weather-widget-body");
+        const stamp = document.getElementById("weather-updated");
+        if (!body) return;
+        try {
+            const w = await ApiService.getWeather();
+            if (!w.available) {
+                body.innerHTML = `<span class="muted">Weather feed unavailable right now.</span>`;
+                return;
+            }
+            const cur = w.current || {};
+            const bars = (w.past_7_days || []).map(d => {
+                const mm = Math.max(0, Number(d.rain_mm) || 0);
+                const h = Math.min(60, mm * 4);  // 1mm = 4px, cap 60
+                const dateLabel = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" });
+                return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:36px">
+                    <div style="height:60px;display:flex;align-items:flex-end"><div title="${mm} mm" style="width:16px;height:${h}px;border-radius:3px;background:${mm > 0 ? '#38BDF8' : 'rgba(255,255,255,0.08)'}"></div></div>
+                    <div class="muted" style="font-size:0.68rem">${dateLabel}</div>
+                    <div style="font-size:0.7rem;font-weight:600">${mm}</div>
+                </div>`;
+            }).join("");
+            const fc = (w.forecast || []).map(d => `<div style="padding:0.5rem 0.75rem;border:1px solid var(--v-stroke);border-radius:10px;min-width:92px;text-align:center">
+                <div style="font-size:0.7rem" class="muted">${new Date(d.date + 'T00:00:00').toLocaleDateString(undefined,{weekday:'short'})}</div>
+                <div style="font-size:1.4rem">${d.label ? d.label.icon : '🌤'}</div>
+                <div style="font-weight:600;font-size:0.8rem">${d.t_max ?? '—'}°/${d.t_min ?? '—'}°</div>
+                <div class="muted" style="font-size:0.7rem">${d.rain_mm} mm</div>
+            </div>`).join("");
+            body.innerHTML = `
+                <div style="display:flex;flex-wrap:wrap;gap:1.25rem;align-items:center">
+                    <div style="display:flex;align-items:center;gap:0.75rem">
+                        <div style="font-size:2.4rem">${cur.label ? cur.label.icon : '🌤'}</div>
+                        <div>
+                            <div style="font-family:var(--v-font-mono);font-size:1.6rem;font-weight:700">${cur.temp_c ?? '—'}°C</div>
+                            <div class="muted" style="font-size:0.78rem">${cur.label ? cur.label.name : ''} · ${cur.humidity_pct ?? '—'}% RH · wind ${cur.wind_kph ?? '—'} km/h</div>
+                        </div>
+                    </div>
+                    <div style="flex:1;min-width:260px">
+                        <div class="muted" style="font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem">Rain last 7 days (mm)</div>
+                        <div style="display:flex;gap:6px;align-items:flex-end">${bars}</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap">${fc}</div>
+                ${w.auto_pause ? `<div class="note-card" style="margin-top:1rem">💧 <strong>Auto-pause suggested:</strong> ${w.rain_24h_mm} mm fell in the last 24 hours. Overdue plants probably got their water from the sky.</div>` : ''}
+            `;
+            if (stamp && w.updated_at) stamp.textContent = `updated ${new Date(w.updated_at).toLocaleString()}`;
+        } catch (e) {
+            body.innerHTML = `<span class="muted">Could not load weather (${e.message}).</span>`;
+        }
+    },
+
+    // --- Insights tab (biodiversity indices) ---
+    async loadInsights() {
+        const overall = document.getElementById("indices-overall");
+        const zoneBody = document.getElementById("indices-zone-body");
+        if (!overall) return;
+        try {
+            const data = await ApiService.getBiodiversityIndices();
+            const o = data.overall || {};
+            overall.innerHTML = `
+                <div class="kpi-card"><div class="kpi-label">Species richness</div><div class="kpi-value">${o.species_richness ?? 0}</div><div class="kpi-subtext">distinct taxa recorded</div></div>
+                <div class="kpi-card"><div class="kpi-label">Shannon H'</div><div class="kpi-value">${(o.shannon_index ?? 0).toFixed(2)}</div><div class="kpi-subtext">site-wide diversity</div></div>
+                <div class="kpi-card"><div class="kpi-label">Simpson 1−D</div><div class="kpi-value">${(o.simpson_index ?? 0).toFixed(2)}</div><div class="kpi-subtext">closer to 1 is better</div></div>
+                <div class="kpi-card"><div class="kpi-label">Pielou J</div><div class="kpi-value">${(o.pielou_evenness ?? 0).toFixed(2)}</div><div class="kpi-subtext">how evenly spread</div></div>
+            `;
+            const rows = (data.zones || []).map(z => `
+                <tr><td><b>${z.zone}</b></td><td>${z.species_richness}</td><td>${z.total_observations}</td><td>${z.shannon_index.toFixed(2)}</td><td>${z.simpson_index.toFixed(2)}</td><td>${z.pielou_evenness.toFixed(2)}</td></tr>
+            `).join("");
+            zoneBody.innerHTML = rows || `<tr class="empty-row"><td colspan="6">No per-zone data available yet.</td></tr>`;
+
+            // Trend chart
+            const trend = await ApiService.getBiodiversityTrend(90, 15).catch(() => ({series: []}));
+            this.renderShannonTrend(trend.series || []);
+        } catch (e) {
+            overall.innerHTML = `<div class="kpi-card"><div class="kpi-label">Error</div><div class="kpi-subtext">${e.message}</div></div>`;
+        }
+    },
+
+    renderShannonTrend(series) {
+        const canvas = document.getElementById("chart-shannon-trend");
+        if (!canvas || !window.Chart) return;
+        if (this._shannonChart) { this._shannonChart.destroy(); this._shannonChart = null; }
+        const labels = series.map(p => p.date);
+        const data = series.map(p => p.shannon);
+        this._shannonChart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: "Shannon H' (90-day window)",
+                    data,
+                    borderColor: '#22C55E',
+                    backgroundColor: 'rgba(34,197,94,0.15)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: { legend: { labels: { color: '#A6B8AD' } } },
+                scales: {
+                    x: { ticks: { color: '#A6B8AD', maxRotation: 0, autoSkip: true }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { beginAtZero: true, ticks: { color: '#A6B8AD' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+    },
+
+    // --- Verification queue with keyboard shortcuts ---
+    async loadVerificationQueue() {
+        this._verifyQueue = null;
+        this._verifyIndex = 0;
+        try {
+            const items = await ApiService.getVerificationQueue(50);
+            this._verifyQueue = items || [];
+            this._renderVerifyCard();
+            if (!this._verifyKeysBound) this._bindVerifyKeys();
+        } catch (e) {
+            document.getElementById("verify-empty").textContent = `Could not load queue: ${e.message}`;
+        }
+    },
+
+    _bindVerifyKeys() {
+        this._verifyKeysBound = true;
+        document.addEventListener("keydown", (e) => {
+            if (this.currentTab !== "verify") return;
+            if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+            const q = this._verifyQueue;
+            if (!q || !q.length) return;
+            if (e.key === "c" || e.key === "C") { e.preventDefault(); this._verifyAct("confirm"); }
+            else if (e.key === "x" || e.key === "X") { e.preventDefault(); this._verifyAct("correct"); }
+            else if (e.key === "r" || e.key === "R") { e.preventDefault(); this._verifyAct("needs_review"); }
+            else if (e.key === "ArrowRight") { e.preventDefault(); this._verifyNext(); }
+            else if (e.key === "ArrowLeft") { e.preventDefault(); this._verifyPrev(); }
+        });
+    },
+
+    _renderVerifyCard() {
+        const stage = document.getElementById("verify-card");
+        const empty = document.getElementById("verify-empty");
+        const q = this._verifyQueue || [];
+        if (!q.length) {
+            empty.style.display = "block";
+            stage.style.display = "none";
+            empty.innerHTML = `<div style="font-size:3rem">✅</div><div style="margin-top:0.5rem">Queue is empty. Nothing to review right now.</div>`;
+            return;
+        }
+        const cur = q[this._verifyIndex];
+        if (!cur) return;
+        empty.style.display = "none";
+        stage.style.display = "block";
+        const photo = cur.photo_url ? `<img src="${cur.photo_url}" alt="observation" onerror="this.outerHTML='<div class=&quot;popup-photo-empty&quot;>📷 photo missing</div>'" style="width:100%;max-height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--v-stroke)">` : `<div class="popup-photo-empty">📷 no photo</div>`;
+        stage.innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start">
+                <div>${photo}</div>
+                <div>
+                    <div class="muted" style="font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase">Observation #${cur.id} · ${this._verifyIndex + 1} of ${q.length}</div>
+                    <h3 style="font-size:1.3rem;margin-top:0.3rem">${cur.scientific_name || "<em>Not identified</em>"}</h3>
+                    <div class="muted" style="margin-bottom:0.6rem">${cur.common_name || "—"}</div>
+                    <div style="font-size:0.85rem;line-height:1.6">
+                        <div><b>Date:</b> ${cur.observed_on || "—"}</div>
+                        <div><b>Zone:</b> ${cur.zone || cur.zone_code || "—"}</div>
+                        <div><b>Observer:</b> ${cur.observer || "—"}</div>
+                        <div><b>GPS:</b> ${cur.latitude || "—"}, ${cur.longitude || "—"}</div>
+                        ${cur.notes ? `<div style="margin-top:0.4rem" class="muted">${cur.notes}</div>` : ""}
+                    </div>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem">
+                        <button class="btn-primary" onclick="App._verifyAct('confirm')">✅ Confirm (C)</button>
+                        <button class="btn-primary btn-blue" onclick="App._verifyAct('correct')">✎ Correct (X)</button>
+                        <button class="btn-primary btn-amber" onclick="App._verifyAct('needs_review')">⚑ Needs review (R)</button>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+                        <button class="btn-action" onclick="App._verifyPrev()">← Prev</button>
+                        <button class="btn-action" onclick="App._verifyNext()">Skip →</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    _verifyNext() { if (this._verifyIndex < (this._verifyQueue?.length || 0) - 1) { this._verifyIndex++; this._renderVerifyCard(); } },
+    _verifyPrev() { if (this._verifyIndex > 0) { this._verifyIndex--; this._renderVerifyCard(); } },
+
+    async _verifyAct(decision) {
+        const cur = (this._verifyQueue || [])[this._verifyIndex];
+        if (!cur) return;
+        if (!ApiService.getNgoPassword()) { this.openAuthModal(); return; }
+        let payload = { decision };
+        if (decision === "correct") {
+            const sci = prompt("Corrected scientific name:", cur.scientific_name || "");
+            if (!sci) return;
+            const com = prompt("Corrected common name (optional):", cur.common_name || "") || "";
+            payload.scientific_name = sci;
+            payload.common_name = com;
+        }
+        try {
+            await ApiService.verifyObservation(cur.id, payload);
+            this.notify(`Observation #${cur.id} ${decision === "confirm" ? "confirmed" : decision === "correct" ? "corrected" : "flagged for review"}.`);
+            this._verifyQueue.splice(this._verifyIndex, 1);
+            if (this._verifyIndex >= this._verifyQueue.length) this._verifyIndex = Math.max(0, this._verifyQueue.length - 1);
+            this._renderVerifyCard();
+        } catch (e) {
+            this.notify(`Verification failed: ${e.message}`, "error", 7000);
+        }
+    },
+
+    // --- Per-species profile modal ---
+    async openSpeciesProfile(scientificName) {
+        document.getElementById("species-profile-modal").style.display = "flex";
+        document.getElementById("species-profile-title").textContent = scientificName;
+        const body = document.getElementById("species-profile-body");
+        body.innerHTML = `<div class="muted">Loading profile…</div>`;
+        try {
+            const p = await ApiService.getSpeciesProfile(scientificName);
+            if (!p.found) { body.innerHTML = `<div class="muted">No records found for ${scientificName}.</div>`; return; }
+            const rarityColor = {rare:'#F97316', uncommon:'#FACC15', common:'#22C55E', very_common:'#4ADE80'}[p.rarity] || '#A6B8AD';
+            const zones = (p.zones || []).map(z => `<span class="pill pill-green">${z.zone} · ${z.count}</span>`).join(" ");
+            const phenBars = (p.phenology || []).map(m => {
+                const h = Math.min(60, m.count * 4);
+                const monthLabel = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m.month - 1];
+                return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:30px">
+                    <div style="height:60px;display:flex;align-items:flex-end"><div style="width:14px;height:${h}px;border-radius:3px;background:#22C55E" title="${m.count} obs"></div></div>
+                    <div class="muted" style="font-size:0.68rem">${monthLabel}</div>
+                </div>`;
+            }).join("");
+            body.innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem">
+                            <span style="padding:3px 10px;border-radius:999px;background:${rarityColor}20;color:${rarityColor};font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em">${p.rarity.replace('_',' ')}</span>
+                            <span class="muted" style="font-size:0.8rem">${p.total_observations} sightings</span>
+                        </div>
+                        <h3 style="margin:0;font-style:italic">${p.scientific_name}</h3>
+                        <div class="muted">${p.common_name || "—"}</div>
+                        <div style="margin-top:0.75rem;font-size:0.85rem;line-height:1.7">
+                            <div><b>First seen:</b> ${p.first_seen || "—"}</div>
+                            <div><b>Last seen:</b> ${p.last_seen || "—"}</div>
+                            <div><b>RSWF planted?</b> ${p.planted_count ? `Yes — ${p.planted_count} on site` : "No"}</div>
+                        </div>
+                        <div style="margin-top:0.75rem">${zones || '<span class="muted">No zone data</span>'}</div>
+                    </div>
+                    <div>
+                        <div class="muted" style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem">Phenology (sightings per month)</div>
+                        <div style="display:flex;gap:4px;align-items:flex-end;padding:0.5rem;background:var(--v-ink-3);border-radius:10px;border:1px solid var(--v-stroke)">${phenBars}</div>
+                        <div class="muted" style="font-size:0.78rem;margin-top:0.75rem">Peak month tells you when this species is easiest to find in Van Udyan.</div>
+                    </div>
+                </div>
+                <div style="margin-top:1rem"><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/${encodeURIComponent(p.scientific_name.replace(/ /g,'_'))}" class="link-btn">↗ Read on Wikipedia</a></div>
+            `;
+        } catch (e) {
+            body.innerHTML = `<div class="muted">Error: ${e.message}</div>`;
+        }
+    },
+    closeSpeciesProfile() { document.getElementById("species-profile-modal").style.display = "none"; },
+
+    // --- Bulk upload ---
+    openBulkUploadModal() { this.requireAuth(() => { document.getElementById("bulk-upload-modal").style.display = "flex"; document.getElementById("bulk-results").innerHTML = ""; document.getElementById("bulk-progress").style.display = "none"; }); },
+    closeBulkUploadModal() { document.getElementById("bulk-upload-modal").style.display = "none"; },
+
+    async handleBulkDrop(e) {
+        e.preventDefault();
+        const dz = document.getElementById("bulk-dropzone");
+        if (dz) dz.classList.remove("drag");
+        const files = e.dataTransfer ? Array.from(e.dataTransfer.files) : Array.from(e.target.files || []);
+        const imgs = files.filter(f => /\.(jpe?g|png|webp)$/i.test(f.name));
+        if (!imgs.length) { this.notify("No JPG/PNG/WEBP files found.", "error"); return; }
+        if (imgs.length > 50) { this.notify("At most 50 files per batch.", "error"); return; }
+        const prog = document.getElementById("bulk-progress");
+        prog.style.display = "block";
+        prog.textContent = `Uploading ${imgs.length} files…`;
+        try {
+            const res = await ApiService.bulkUploadPhotos(imgs);
+            prog.textContent = `Done: ${res.summary.ok} ok · ${res.summary.needs_confirmation} need confirmation · ${res.summary.duplicates} duplicates · ${res.summary.rejected} rejected · ${res.summary.errors} errors.`;
+            const rows = (res.results || []).map(r => {
+                const badge = r.ok ? (r.requires_confirmation ? '<span class="pill pill-orange">needs GPS confirmation</span>' : '<span class="pill pill-green">saved</span>') :
+                    r.status === "duplicate" ? '<span class="pill pill-purple">duplicate</span>' :
+                    '<span class="pill pill-grey">' + (r.status || "error") + '</span>';
+                const msg = r.error || r.message || (r.observation_id ? `#${r.observation_id} · ${r.zone || ""}` : "");
+                return `<tr><td>${r.filename}</td><td>${badge}</td><td class="muted">${msg}</td></tr>`;
+            }).join("");
+            document.getElementById("bulk-results").innerHTML = `
+                <table class="data-table" style="margin-top:0.75rem">
+                    <thead><tr><th>File</th><th>Result</th><th>Note</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <div style="display:flex;justify-content:flex-end;margin-top:0.75rem">
+                    <button class="btn-primary" onclick="App.closeBulkUploadModal(); App.loadObservations()">Done</button>
+                </div>
+            `;
+        } catch (err) {
+            prog.textContent = `Bulk upload failed: ${err.message}`;
+        }
+    },
+
+    // --- 3D terrain toggle (MapLibre lazy init) ---
+    toggle3DTerrain() {
+        const flat = document.getElementById("leaflet-map");
+        const three = document.getElementById("maplibre-map");
+        const btn = document.getElementById("toggle-3d-terrain");
+        if (!flat || !three) return;
+        if (three.style.display === "none") {
+            flat.style.display = "none";
+            three.style.display = "block";
+            btn.textContent = "🗺 Flat map";
+            this._init3DMap();
+        } else {
+            three.style.display = "none";
+            flat.style.display = "block";
+            btn.textContent = "🏔 3D Terrain";
+            setTimeout(() => { if (this._leafletMap) this._leafletMap.invalidateSize(); }, 100);
+        }
+    },
+
+    _init3DMap() {
+        if (!window.maplibregl) {
+            document.getElementById("maplibre-map").innerHTML = '<div class="muted" style="padding:2rem;text-align:center">MapLibre is still loading… try again in a moment.</div>';
+            return;
+        }
+        if (this._mlMap) return;
+        this._mlMap = new maplibregl.Map({
+            container: "maplibre-map",
+            style: {
+                version: 8,
+                sources: {
+                    "osm-raster": { type: "raster", tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, attribution: "© OpenStreetMap contributors" },
+                    "terrain-dem": { type: "raster-dem", tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"], tileSize: 256, encoding: "terrarium", maxzoom: 15 }
+                },
+                layers: [{ id: "osm", type: "raster", source: "osm-raster" }],
+                terrain: { source: "terrain-dem", exaggeration: 1.8 }
+            },
+            center: [73.7802, 18.5195],
+            zoom: 15.5,
+            pitch: 60,
+            bearing: -20,
+        });
+        this._mlMap.on("load", async () => {
+            this._mlMap.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
+            try {
+                const obs = await ApiService.getMapObservations({});
+                const feats = (obs.data || obs).map(o => ({
+                    type: "Feature",
+                    geometry: { type: "Point", coordinates: [Number(o.longitude), Number(o.latitude)] },
+                    properties: { name: o.scientific_name, source: o.source }
+                })).filter(f => Number.isFinite(f.geometry.coordinates[0]) && Number.isFinite(f.geometry.coordinates[1]));
+                this._mlMap.addSource("obs", { type: "geojson", data: { type: "FeatureCollection", features: feats } });
+                this._mlMap.addLayer({
+                    id: "obs-dots",
+                    type: "circle",
+                    source: "obs",
+                    paint: {
+                        "circle-radius": 5,
+                        "circle-color": ["match", ["get", "source"], "iNaturalist", "#22C55E", "Planted Plants", "#38BDF8", "#F97316"],
+                        "circle-stroke-width": 1,
+                        "circle-stroke-color": "#fff"
+                    }
+                });
+            } catch (e) {
+                console.warn("3D map pin layer:", e);
+            }
+        });
     }
 };
 

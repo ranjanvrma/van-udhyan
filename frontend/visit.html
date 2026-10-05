@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Van Udyan — a living atlas of Bavdhan's urban forest</title>
+    <meta name="description" content="Van Udyan is RSWF's conservation project in Bavdhan, Pune — a 274-sighting living record of the plants and biodiversity we protect together.">
+    <meta property="og:title" content="Van Udyan — Living atlas of Bavdhan's urban forest">
+    <meta property="og:description" content="RSWF's conservation project in Bavdhan, Pune. 274 sightings, 101 species, 3 monitored zones.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <style>
+        :root {
+            --v-ink: #050C09;
+            --v-ink-2: #0A1811;
+            --v-ink-3: #0E2117;
+            --v-leaf: #22C55E;
+            --v-leaf-bright: #4ADE80;
+            --v-text: #E8F2EC;
+            --v-text-dim: #A6B8AD;
+            --v-stroke: rgba(74, 222, 128, 0.14);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: var(--v-ink); color: var(--v-text); font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif; -webkit-font-smoothing: antialiased; }
+
+        .site-nav {
+            position: sticky; top: 0; z-index: 50;
+            padding: 1rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+            background: rgba(10, 24, 17, 0.9);
+            border-bottom: 1px solid var(--v-stroke);
+        }
+        .brand { display: flex; gap: 0.6rem; align-items: center; font-weight: 800; letter-spacing: -0.02em; font-size: 1.05rem; }
+        .brand span { width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #22C55E, #15803D); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); }
+        .nav-link { color: var(--v-text-dim); text-decoration: none; font-size: 0.9rem; margin-right: 1.1rem; }
+        .nav-link:hover { color: var(--v-leaf-bright); }
+
+        .hero { position: relative; height: 76vh; min-height: 520px; overflow: hidden; }
+        #hero-map { position: absolute; inset: 0; z-index: 1; }
+        .hero-overlay {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            background: radial-gradient(1200px 500px at 25% 60%, rgba(5,12,9,0.4), rgba(5,12,9,0.95) 70%);
+        }
+        .hero-content {
+            position: absolute; inset: 0; z-index: 3;
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 2.5rem 2rem; max-width: 720px;
+        }
+        .hero-eyebrow { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--v-leaf-bright); font-weight: 700; }
+        .hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-top: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #A7F3D0 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-sub { color: var(--v-text-dim); font-size: 1.05rem; line-height: 1.6; margin-top: 1rem; max-width: 56ch; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding: 0.85rem 1.5rem; border-radius: 999px; background: linear-gradient(135deg,#22C55E,#15803D); color: #042112; font-weight: 600; text-decoration: none; box-shadow: 0 8px 24px -8px rgba(34,197,94,0.5); pointer-events: auto; }
+        .hero-cta:hover { filter: brightness(1.08); }
+
+        .wrap { max-width: 1180px; margin: 0 auto; padding: 4rem 1.5rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 3.5rem; }
+        .stat {
+            padding: 1.4rem 1.25rem; border: 1px solid var(--v-stroke); border-radius: 16px;
+            background: var(--v-ink-3);
+        }
+        .stat-n { font-family: "JetBrains Mono", monospace; font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #fff, #A7F3D0); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-l { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--v-text-dim); margin-top: 0.3rem; }
+
+        .section-h { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.4rem; }
+        .section-p { color: var(--v-text-dim); margin-bottom: 2rem; max-width: 60ch; line-height: 1.6; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.9rem; }
+        .card {
+            border: 1px solid var(--v-stroke); border-radius: 14px; overflow: hidden;
+            background: var(--v-ink-3); transition: border-color 150ms ease, transform 150ms ease;
+        }
+        .card:hover { border-color: rgba(74,222,128,0.35); transform: translateY(-2px); }
+        .card img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--v-ink-2); }
+        .card-meta { padding: 0.6rem 0.8rem 0.8rem; }
+        .card-sci { font-style: italic; font-size: 0.88rem; font-weight: 600; }
+        .card-cn { color: var(--v-text-dim); font-size: 0.78rem; margin-top: 0.15rem; }
+        .card-n { color: var(--v-leaf-bright); font-size: 0.72rem; margin-top: 0.3rem; font-weight: 600; }
+
+        .closing { padding: 3rem 1.5rem; background: var(--v-ink-2); border-top: 1px solid var(--v-stroke); text-align: center; }
+        .closing h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+        .closing p { color: var(--v-text-dim); margin-top: 0.6rem; max-width: 54ch; margin-inline: auto; line-height: 1.6; }
+        .donate { display: inline-block; margin-top: 1.5rem; padding: 0.85rem 1.5rem; border-radius: 999px; background: linear-gradient(135deg,#FBBF24,#F59E0B); color: #4A1C04; font-weight: 700; text-decoration: none; box-shadow: 0 8px 24px -8px rgba(245,158,11,0.5); }
+        .donate:hover { filter: brightness(1.08); }
+        footer { text-align: center; color: var(--v-text-dim); font-size: 0.8rem; padding: 1.5rem; border-top: 1px solid var(--v-stroke); background: var(--v-ink); }
+        footer a { color: var(--v-leaf-bright); text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .hero { height: 72vh; min-height: 460px; }
+            .hero-content { padding: 1.5rem 1.25rem; }
+            .wrap { padding: 2.5rem 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav">
+    <div class="brand"><span>🌿</span> Van Udyan</div>
+    <div>
+        <a class="nav-link" href="#story">The story</a>
+        <a class="nav-link" href="#species">Species</a>
+        <a class="nav-link" href="/">Open dashboard →</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div id="hero-map"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-eyebrow">Bavdhan · Pune · Maharashtra</div>
+        <h1 class="hero-title">A living atlas of Bavdhan's urban forest.</h1>
+        <p class="hero-sub">Van Udyan is a conservation project run by RSWF. Volunteers plant, monitor and record every tree, flower and bird we find — building a public, open record of the biodiversity that calls this hillside home.</p>
+        <a class="hero-cta" href="#story">Explore the project →</a>
+    </div>
+</section>
+
+<main class="wrap">
+    <div id="stats" class="stats"><div class="stat"><div class="stat-n">—</div><div class="stat-l">loading</div></div></div>
+
+    <section id="story">
+        <h2 class="section-h">What we're building</h2>
+        <p class="section-p">Van Udyan started as a reforestation effort on a bare hillside in Bavdhan. Today it holds dozens of planted species, hundreds of recorded wild sightings, and three monitoring zones that let RSWF see how the forest is changing — season by season, year by year.</p>
+    </section>
+
+    <section id="species" style="margin-top:3rem">
+        <h2 class="section-h">Species of Van Udyan</h2>
+        <p class="section-p">A sample of the plants recorded in our zones. Every record is checked by RSWF and anchored to a GPS coordinate inside the project boundary.</p>
+        <div id="gallery" class="gallery"></div>
+    </section>
+</main>
+
+<section class="closing">
+    <h3>Help us keep growing it.</h3>
+    <p>RSWF funds the plants, the water, the sensors and the people. A one-time contribution plants more trees and keeps the atlas open.</p>
+    <a class="donate" href="mailto:rswf.contact@example.org?subject=Support%20Van%20Udyan">Support Van Udyan →</a>
+</section>
+<footer>Van Udyan · a living atlas by <a href="https://rswf.in" target="_blank" rel="noopener">RSWF</a> · open data · <a href="/">dashboard</a></footer>
+
+<script src="js/config.local.js" onerror="void 0"></script>
+<script src="js/config.js?v=flat1"></script>
+<script>
+(async () => {
+    // Hero map
+    const map = L.map("hero-map", { zoomControl: false, attributionControl: false, scrollWheelZoom: false, dragging: false, touchZoom: false, doubleClickZoom: false, boxZoom: false }).setView([18.5195, 73.7802], 15.2);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { subdomains: "abcd" }).addTo(map);
+
+    const ep = window.APP_CONFIG.getEndpoint;
+
+    // Observation pins
+    try {
+        const r = await fetch(ep("/map/observations"));
+        const data = await r.json();
+        const rows = (data.data || data || []);
+        rows.forEach(o => {
+            if (!Number.isFinite(+o.latitude) || !Number.isFinite(+o.longitude)) return;
+            L.circleMarker([+o.latitude, +o.longitude], {
+                radius: 4, fillColor: "#22C55E", color: "#4ADE80", weight: 1, fillOpacity: 0.75
+            }).addTo(map);
+        });
+    } catch (e) {}
+
+    // Stats
+    try {
+        const stats = await fetch(ep("/statistics/overview")).then(r => r.json());
+        document.getElementById("stats").innerHTML = `
+            <div class="stat"><div class="stat-n">${(stats.total_observations || 0).toLocaleString()}</div><div class="stat-l">Observations</div></div>
+            <div class="stat"><div class="stat-n">${(stats.unique_species_count || 0).toLocaleString()}</div><div class="stat-l">Species &amp; taxa</div></div>
+            <div class="stat"><div class="stat-n">3</div><div class="stat-l">Monitoring zones</div></div>
+            <div class="stat"><div class="stat-n">${((stats.observations_by_source || {})["Planted Plants"] || 0).toLocaleString()}</div><div class="stat-l">Planted by RSWF</div></div>
+        `;
+    } catch (e) {}
+
+    // Species gallery
+    try {
+        const idx = await fetch(ep("/analytics/species-index")).then(r => r.json());
+        const top = (idx || []).slice(0, 18);
+        document.getElementById("gallery").innerHTML = top.map(s => `
+            <a class="card" href="/#species" title="Open ${s.scientific_name} in the dashboard">
+                ${s.photo_url ? `<img src="${s.photo_url}" alt="" loading="lazy" onerror="this.remove()">` : `<div style="height:140px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#0E2117">🌿</div>`}
+                <div class="card-meta">
+                    <div class="card-sci">${s.scientific_name}</div>
+                    ${s.common_name ? `<div class="card-cn">${s.common_name}</div>` : ""}
+                    <div class="card-n">${s.count} sighting${s.count === 1 ? "" : "s"}</div>
+                </div>
+            </a>
+        `).join("");
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

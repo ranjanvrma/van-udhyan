@@ -15,15 +15,19 @@
     <!-- Leaflet GIS CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
+    <!-- MapLibre GL JS (lazy-loaded only when 3D terrain is toggled on) -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+
     <!-- Verdant theme — minimal / performant / cache-busted -->
-    <link rel="stylesheet" href="css/theme-verdant.css?v=flat1">
+    <link rel="stylesheet" href="css/theme-verdant.css?v=p15">
 
     <!-- Legacy base styles (stripped of blurs & infinite animations) -->
-    <link rel="stylesheet" href="css/styles.css?v=flat1">
+    <link rel="stylesheet" href="css/styles.css?v=p15">
 
     <!-- Chart.js & Leaflet JS CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
 </head>
 <body>
 
@@ -65,6 +69,16 @@
             <li class="nav-item">
                 <button data-tab="watering">
                     <span>💧</span> Watering
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="insights">
+                    <span>📈</span> Insights
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="verify">
+                    <span>✅</span> Verify
                 </button>
             </li>
             <li class="nav-item">
@@ -199,6 +213,9 @@
                         <h3>Biodiversity Map</h3>
                         <p>Site boundary, monitoring zones and every recorded plant. Click a point for details; use the layer button to show or hide groups.</p>
                     </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center">
+                        <button id="toggle-3d-terrain" class="btn-action" onclick="App.toggle3DTerrain()" title="Switch between flat Leaflet and 3D terrain">🏔 3D Terrain</button>
+                    </div>
                     <div class="map-legend">
                         <span class="legend-item"><span class="legend-line"></span> Site boundary</span>
                         <span class="legend-item"><span class="legend-zone"></span> Zones A / B / C</span>
@@ -208,6 +225,7 @@
                     </div>
                 </div>
                 <div id="leaflet-map"></div>
+                <div id="maplibre-map" style="display:none; width:100%; flex:1; min-height:420px"></div>
             </div>
         </section>
 
@@ -344,6 +362,12 @@
                 </div>
             </div>
 
+            <!-- Live weather widget (Open-Meteo, cached 30 min server-side) -->
+            <div id="weather-widget" class="panel" style="margin-bottom:1.25rem">
+                <div class="panel-header"><h3>🌤 Bavdhan weather</h3><span class="panel-tag" id="weather-updated">—</span></div>
+                <div id="weather-widget-body" class="muted">Fetching weather…</div>
+            </div>
+
             <div class="kpi-grid" id="watering-summary">
                 <div class="kpi-card loading-text">Loading watering status...</div>
             </div>
@@ -371,6 +395,70 @@
             </div>
         </section>
 
+        <!-- INSIGHTS TAB — biodiversity indices (Shannon / Simpson / richness) -->
+        <section id="tab-insights" class="tab-pane">
+            <div class="section-header">
+                <div>
+                    <h2>Biodiversity Insights</h2>
+                    <p>Standard ecology metrics computed live from every recorded sighting. Higher Shannon &amp; Simpson values mean more diverse communities; evenness tells you how balanced those communities are.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="App.loadInsights()">↻ Refresh</button>
+                </div>
+            </div>
+
+            <div class="kpi-grid" id="indices-overall">
+                <div class="kpi-card loading-text">Computing indices…</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><h3>Per-zone diversity</h3><span class="panel-tag">live</span></div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Zone</th><th>Species richness</th><th>Observations</th><th>Shannon H'</th><th>Simpson 1-D</th><th>Pielou evenness</th></tr>
+                        </thead>
+                        <tbody id="indices-zone-body"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="chart-card" style="margin-top:1.25rem; height:340px">
+                <div class="chart-title">Rolling 90-day Shannon trend</div>
+                <div class="chart-subtitle">A sliding 90-day window re-scored every 15 days.</div>
+                <div class="chart-container"><canvas id="chart-shannon-trend"></canvas></div>
+            </div>
+
+            <div class="note-card" style="margin-top:1.25rem">
+                <strong>Reading the numbers:</strong>
+                <b>Shannon H'</b> rewards both species richness and even abundance (0 = monoculture, 2.5+ = diverse site).
+                <b>Simpson 1-D</b> is the chance two random sightings are different species (closer to 1 = more diverse).
+                <b>Pielou J</b> is how evenly individuals are spread across species (1 = perfectly even).
+            </div>
+        </section>
+
+        <!-- VERIFY TAB — queue + keyboard shortcuts -->
+        <section id="tab-verify" class="tab-pane">
+            <div class="section-header">
+                <div>
+                    <h2>Verification Queue</h2>
+                    <p>Review the next field upload: press <kbd>C</kbd> confirm, <kbd>X</kbd> correct, <kbd>R</kbd> needs review, <kbd>→</kbd> skip, <kbd>←</kbd> previous. Requires unlock.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="App.loadVerificationQueue()">↻ Refresh queue</button>
+                </div>
+            </div>
+
+            <div id="verify-stage" class="panel" style="min-height:420px">
+                <div id="verify-empty" class="muted" style="padding:3rem 1rem; text-align:center">Loading queue…</div>
+                <div id="verify-card" style="display:none"></div>
+            </div>
+
+            <div class="note-card" style="margin-top:1rem">
+                <strong>Shortcuts:</strong> <kbd>C</kbd> confirms the current scientific name · <kbd>X</kbd> opens the correct-species picker · <kbd>R</kbd> flags for later · <kbd>→</kbd> skip without saving · <kbd>←</kbd> go back one. Clicking the photo opens it full-size.
+            </div>
+        </section>
+
         <!-- 6. DATA MANAGEMENT TAB PANE -->
         <section id="tab-management" class="tab-pane">
             <div class="section-header">
@@ -382,6 +470,7 @@
                     <button class="btn-primary" onclick="App.openAddPlantModal()">🌱 Add Planted Plant</button>
                     <button class="btn-primary btn-blue" onclick="App.openAddNgoObsModal()">📝 Add Field Sighting</button>
                     <button class="btn-primary btn-purple" onclick="App.openUploadPhotoModal()">📷 Upload Geotagged Photo</button>
+                    <button class="btn-primary btn-amber" onclick="App.openBulkUploadModal()">📂 Bulk Upload</button>
                 </div>
             </div>
 
@@ -929,15 +1018,47 @@
     </div>
 </div>
 
+<!-- SPECIES PROFILE MODAL -->
+<div id="species-profile-modal" class="modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="species-profile-title">
+    <div class="modal-card modal-wide" style="max-width:860px">
+        <div class="modal-header">
+            <h3 id="species-profile-title">Species profile</h3>
+            <button class="modal-close" aria-label="Close" onclick="App.closeSpeciesProfile()">×</button>
+        </div>
+        <div id="species-profile-body"><div class="muted">Loading…</div></div>
+    </div>
+</div>
+
+<!-- BULK UPLOAD MODAL -->
+<div id="bulk-upload-modal" class="modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="bulk-upload-title">
+    <div class="modal-card modal-wide" style="max-width:900px">
+        <div class="modal-header">
+            <h3 id="bulk-upload-title">📂 Bulk Photo Upload</h3>
+            <button class="modal-close" aria-label="Close" onclick="App.closeBulkUploadModal()">×</button>
+        </div>
+        <p class="modal-intro">Drop up to 50 photos at once. Each file is checked for GPS, zone, and nearby duplicates — review the results below and act on each row.</p>
+        <div id="bulk-dropzone" ondragover="event.preventDefault(); this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="App.handleBulkDrop(event)"
+             style="border:2px dashed var(--v-stroke-strong, #10b981); border-radius:14px; padding:2.2rem 1rem; text-align:center; cursor:pointer; transition:background 150ms ease"
+             onclick="document.getElementById('bulk-file-input').click()">
+            <div style="font-size:2rem">📷</div>
+            <div style="font-weight:600; margin-top:0.4rem">Drop photos here, or click to select</div>
+            <div class="muted" style="margin-top:0.3rem; font-size:0.8rem">JPG / PNG / WEBP · 50 files max · each ≤ 15 MB</div>
+            <input type="file" id="bulk-file-input" accept=".jpg,.jpeg,.png,.webp" multiple style="display:none" onchange="App.handleBulkDrop(event)">
+        </div>
+        <div id="bulk-progress" class="muted" style="margin-top:0.75rem; display:none"></div>
+        <div id="bulk-results" style="margin-top:1rem"></div>
+    </div>
+</div>
+
 <!-- Optional deploy-time override. Create frontend/js/config.local.js on your server
      with: window.APP_CONFIG_OVERRIDE = { API_BASE_URL: "https://your-backend.example" };
      to point this frontend at a backend hosted on a different domain. -->
 <script src="js/config.local.js" onerror="void 0"></script>
 
 <!-- Frontend JavaScript Modules -->
-<script src="js/config.js?v=6"></script>
-<script src="js/api.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/config.js?v=p15"></script>
+<script src="js/api.js?v=p15"></script>
+<script src="js/app.js?v=p15"></script>
 
 </body>
 </html>

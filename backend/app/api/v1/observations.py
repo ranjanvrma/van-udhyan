@@ -6,6 +6,7 @@ and provenance protection preventing modification of original iNaturalist record
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, status, Response
+from typing import List as _List
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.db.session import get_db
@@ -155,6 +156,57 @@ def confirm_geotag_location(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.to_detail())
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post("/bulk-upload", status_code=status.HTTP_200_OK)
+async def bulk_upload_photos(
+    files: _List[UploadFile] = File(..., description="Up to 50 photos — EXIF/GPS, zone, dedup are run per file"),
+    allow_nearby_duplicate: bool = Query(False, description="Skip the 1 m same-plant guard for every file"),
+):
+    """
+    Batch EXIF/GPS pipeline for a folder-drop of photos.
+    Each file is processed through the same guards as /upload; the response
+    is one row per file so the frontend can render a review grid.
+    Nothing is auto-persisted when GPS confirmation is still pending — the
+    user acts on each row in the UI.
+    """
+    if not files:
+        raise HTTPException(status_code=400, detail="No files uploaded")
+    if len(files) > 50:
+        raise HTTPException(status_code=413, detail="At most 50 files per batch")
+
+    results = []
+    for f in files:
+        name = f.filename or "unnamed.jpg"
+        ctype = f.content_type or "image/jpeg"
+        try:
+            contents = await f.read()
+        except Exception as read_err:
+            results.append({"filename": name, "ok": False, "error": f"Could not read upload: {read_err}"})
+            continue
+        try:
+            res = DataService.process_photo_upload(
+                contents, name, ctype,
+                confirm_location=False,
+                allow_nearby_duplicate=allow_nearby_duplicate,
+            )
+            results.append({"filename": name, "ok": True, **res})
+        except DuplicateObservationError as de:
+            results.append({"filename": name, "ok": False, "status": "duplicate", "duplicate": de.to_detail()})
+        except ValueError as ve:
+            results.append({"filename": name, "ok": False, "status": "rejected", "error": str(ve)})
+        except Exception as ue:  # noqa: BLE001
+            results.append({"filename": name, "ok": False, "status": "error", "error": str(ue)})
+
+    summary = {
+        "total": len(files),
+        "ok": sum(1 for r in results if r.get("ok")),
+        "needs_confirmation": sum(1 for r in results if r.get("requires_confirmation")),
+        "duplicates": sum(1 for r in results if r.get("status") == "duplicate"),
+        "rejected": sum(1 for r in results if r.get("status") == "rejected"),
+        "errors": sum(1 for r in results if r.get("status") == "error"),
+    }
+    return {"summary": summary, "results": results}
+
 
 @router.post("/inspect-photo")
 async def inspect_photo_file(file: UploadFile = File(...)):

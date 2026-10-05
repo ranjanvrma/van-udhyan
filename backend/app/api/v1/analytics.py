@@ -4,10 +4,48 @@ Exposes REST endpoints for recorded biodiversity, zone comparison, coverage anal
 rule-based action priorities, species distribution, and temporal timeline.
 """
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Query, status
 from app.services.analytics_service import AnalyticsService
+from app.services.insights_service import (
+    biodiversity_indices,
+    biodiversity_trend,
+    species_index,
+    species_profile,
+    verification_queue,
+)
+from app.services.weather_service import get_watering_weather
 
 router = APIRouter(prefix="/analytics", tags=["Advanced Analytics & Conservation Insights"])
+
+@router.get("/biodiversity-indices")
+def get_biodiversity_indices():
+    """Shannon, Simpson, Pielou evenness and richness — overall + per zone."""
+    return biodiversity_indices()
+
+@router.get("/biodiversity-trend")
+def get_biodiversity_trend(window_days: int = Query(90, ge=14, le=365), step_days: int = Query(15, ge=1, le=60)):
+    """Rolling site-wide Shannon index for a sliding window."""
+    return biodiversity_trend(window_days=window_days, step_days=step_days)
+
+@router.get("/species-index")
+def get_species_index():
+    """Alphabetical index of every distinct species with observation counts and a cover photo."""
+    return species_index()
+
+@router.get("/species-profile")
+def get_species_profile(name: str = Query(..., min_length=2, description="Scientific name (case-insensitive)")):
+    """Aggregate profile for a species — zones, phenology, pins, sources, rarity."""
+    return species_profile(name)
+
+@router.get("/verification-queue")
+def get_verification_queue(limit: int = Query(50, ge=1, le=200)):
+    """NGO observations awaiting human review (public read; verify POST still requires admin)."""
+    return verification_queue(limit=limit)
+
+@router.get("/weather")
+def get_weather():
+    """Open-Meteo weather snapshot for Bavdhan — current + past-7d rainfall + 3-day forecast."""
+    return get_watering_weather()
 
 @router.get("/biodiversity")
 def get_biodiversity_analytics():

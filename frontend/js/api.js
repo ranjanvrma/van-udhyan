@@ -406,6 +406,37 @@ class ApiService {
         return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/temporal'));
     }
 
+    // Phase 15 — insights, species profiles, verification queue, weather, bulk upload
+    static getBiodiversityIndices() {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/biodiversity-indices'));
+    }
+    static getBiodiversityTrend(windowDays = 90, stepDays = 15) {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/biodiversity-trend?window_days=${windowDays}&step_days=${stepDays}`));
+    }
+    static getSpeciesIndex() {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/species-index'));
+    }
+    static getSpeciesProfile(name) {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/species-profile?name=${encodeURIComponent(name)}`));
+    }
+    static getVerificationQueue(limit = 50) {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/verification-queue?limit=${limit}`));
+    }
+    static getWeather() {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/weather'));
+    }
+    static async bulkUploadPhotos(files, { allowNearbyDuplicate = false } = {}) {
+        const fd = new FormData();
+        for (const f of files) fd.append('files', f);
+        const url = window.APP_CONFIG.getEndpoint(`/observations/bulk-upload?allow_nearby_duplicate=${allowNearbyDuplicate}`);
+        const res = await fetch(url, { method: 'POST', body: fd });
+        if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            throw new Error(text || `HTTP ${res.status}`);
+        }
+        return res.json();
+    }
+
     // Phase 14 / 14.1 Conservation & SDG Report Methods
     static getConservationReportJson() {
         return this.fetchJson(window.APP_CONFIG.getEndpoint('/reports/conservation'));
