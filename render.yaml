@@ -27,9 +27,12 @@ services:
         sync: false
       - key: PLANTNET_PROJECT
         value: k-indian-subcontinent
-      # Admin password for RSWF staff edits (choose a strong one)
+      # Admin password RSWF staff type into the dashboard to unlock editing.
+      # Set this to a value you choose and share with the RSWF team (not a random one — pick
+      # something you can remember and tell your mentor, e.g. "rswf-admin-pass" for a demo
+      # or something stronger for real use). Change it by editing this env var in Render.
       - key: NGO_ADMIN_PASSWORD
-        generateValue: true          # Render generates a random strong value on first deploy
+        sync: false
       # Supabase Storage for uploaded photos — otherwise photos vanish on redeploy
       - key: SUPABASE_URL
         sync: false

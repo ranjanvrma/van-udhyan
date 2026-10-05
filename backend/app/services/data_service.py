@@ -175,21 +175,36 @@ def save_monitoring_store(records: List[Dict[str, Any]]):
 DUPLICATE_DHASH_MAX_DISTANCE = 6
 # A visually identical photo within this distance of an existing one is the same sighting
 DUPLICATE_SAME_SPOT_METERS = 10.0
-# Different photos this close together are reported as possible duplicates, but still accepted
-NEARBY_SPOT_METERS = 2.0
+# Within this radius, two different photos are treated as the SAME physical plant by default.
+# A volunteer walking around a tree takes several photos from different angles — we don't want
+# each one to become its own observation. The uploader can override with allow_nearby_duplicate
+# when two plants really do grow this close together (e.g. dense plantings).
+SAME_PLANT_RADIUS_METERS = 1.0
 
 class DuplicateObservationError(ValueError):
-    """Raised when an uploaded photo is already recorded as an NGO observation."""
+    """
+    Raised when an uploaded photo matches an existing NGO observation.
 
-    def __init__(self, message: str, existing: Dict[str, Any]):
+    Two flavours of match:
+      - `kind="exact"`: the same photo (byte-identical or a near-identical re-encoded copy).
+                        No way around this — the backend always rejects it.
+      - `kind="nearby"`: a different photo taken within SAME_PLANT_RADIUS_METERS of an existing
+                        plant record. The caller can retry with allow_nearby_duplicate=true to
+                        tell the backend "this is really a different plant, record it anyway".
+    """
+
+    def __init__(self, message: str, existing: Dict[str, Any], kind: str = "exact"):
         super().__init__(message)
         self.existing = existing
+        self.kind = kind  # "exact" or "nearby"
 
     def to_detail(self) -> Dict[str, Any]:
         e = self.existing
         return {
             "message": str(self),
             "duplicate": True,
+            "duplicate_kind": self.kind,
+            "overridable": self.kind == "nearby",
             "existing_observation_id": e.get("id"),
             "photo_url": e.get("photo_url"),
             "latitude": e.get("latitude"),
@@ -287,20 +302,45 @@ def find_duplicate_photo_observation(
             return rec
     return None
 
-def find_nearby_observation_ids(ngo_records: List[Dict[str, Any]], lat: float, lng: float) -> List[int]:
-    """IDs of existing NGO observations recorded at (almost) the same coordinates."""
+def find_nearby_observation_ids(ngo_records: List[Dict[str, Any]], lat: float, lng: float,
+                                 radius_m: float = SAME_PLANT_RADIUS_METERS) -> List[int]:
+    """IDs of existing NGO observations recorded within radius_m of the given coordinates."""
     return [
         rec["id"] for rec in ngo_records
         if rec.get("latitude") is not None and rec.get("longitude") is not None
-        and distance_meters(lat, lng, float(rec["latitude"]), float(rec["longitude"])) <= NEARBY_SPOT_METERS
+        and distance_meters(lat, lng, float(rec["latitude"]), float(rec["longitude"])) <= radius_m
     ]
+
+def find_same_plant_observation(ngo_records: List[Dict[str, Any]], lat: float, lng: float) -> Optional[Dict[str, Any]]:
+    """Returns the closest existing NGO observation within SAME_PLANT_RADIUS_METERS, or None."""
+    closest: Optional[Dict[str, Any]] = None
+    closest_d = SAME_PLANT_RADIUS_METERS + 1
+    for rec in ngo_records:
+        if rec.get("latitude") is None or rec.get("longitude") is None:
+            continue
+        d = distance_meters(lat, lng, float(rec["latitude"]), float(rec["longitude"]))
+        if d <= SAME_PLANT_RADIUS_METERS and d < closest_d:
+            closest = rec
+            closest_d = d
+    return closest
 
 def duplicate_observation_error(existing: Dict[str, Any]) -> DuplicateObservationError:
     return DuplicateObservationError(
         f"This photo has already been uploaded as Observation #{existing['id']} "
         f"({existing.get('zone') or 'Outside Active Zones'}, {existing.get('latitude')}, {existing.get('longitude')}). "
         f"A duplicate observation was not created.",
-        existing
+        existing,
+        kind="exact",
+    )
+
+def same_plant_error(existing: Dict[str, Any]) -> DuplicateObservationError:
+    name = existing.get("common_name") or existing.get("scientific_name") or "a plant"
+    return DuplicateObservationError(
+        f"A plant ({name}) is already recorded within {SAME_PLANT_RADIUS_METERS:.0f} metre of "
+        f"this spot as Observation #{existing['id']}. Looks like the same plant from a different angle. "
+        f"If this really is a different plant, upload again and choose 'record anyway'.",
+        existing,
+        kind="nearby",
     )
 
 def raise_if_duplicate(ngo_records, sha256_hex, dhash_hex, lat=None, lng=None):
@@ -666,6 +706,9 @@ class DataService:
         assigned_zone = data.get("zone_code") or auto_zone
 
         new_id = max([r["id"] for r in records], default=0) + 1
+        watering_interval = data.get("watering_interval_days")
+        if watering_interval is not None:
+            watering_interval = int(watering_interval)
         plant_record = {
             "id": new_id,
             "plant_code": code,
@@ -678,7 +721,9 @@ class DataService:
             "longitude": lng,
             "zone_code": assigned_zone,
             "notes": safe_str(data.get("notes")),
-            "photo_url": safe_str(data.get("photo_url"))
+            "photo_url": safe_str(data.get("photo_url")),
+            "watering_interval_days": watering_interval,
+            "last_watered_on": safe_str(data.get("last_watered_on")),
         }
 
         records.append(plant_record)
@@ -762,9 +807,12 @@ class DataService:
             current["longitude"] = lng_val
             current["zone_code"] = update_data.get("zone_code") or auto_zone
 
-        for field in ["plant_code", "scientific_name", "common_name", "planted_on", "notes", "photo_url"]:
+        for field in ["plant_code", "scientific_name", "common_name", "planted_on", "notes", "photo_url", "last_watered_on"]:
             if field in update_data and update_data[field] is not None:
                 current[field] = safe_str(update_data[field])
+
+        if "watering_interval_days" in update_data and update_data["watering_interval_days"] is not None:
+            current["watering_interval_days"] = int(update_data["watering_interval_days"])
 
         current["source"] = "Planted Plants"
 
@@ -1113,7 +1161,8 @@ class DataService:
         file_bytes: bytes,
         original_filename: str,
         content_type: str,
-        confirm_location: bool = False
+        confirm_location: bool = False,
+        allow_nearby_duplicate: bool = False,
     ) -> Dict[str, Any]:
         from app.services.exif_service import validate_upload_file, generate_content_filename, extract_photo_location, compute_photo_fingerprint
         import datetime
@@ -1164,6 +1213,13 @@ class DataService:
 
         # 5. Reject the same image re-compressed / re-forwarded at the same spot
         raise_if_duplicate(ngo_records, sha256_hex, dhash_hex, lat, lng)
+
+        # 5a. Within SAME_PLANT_RADIUS_METERS we treat different photos as the same plant
+        # (volunteer walked around the tree). Caller can override with allow_nearby_duplicate=true
+        # when two plants really do grow this close (e.g. dense plantings).
+        nearby_plant = find_same_plant_observation(ngo_records, lat, lng)
+        if nearby_plant and not allow_nearby_duplicate:
+            raise same_plant_error(nearby_plant)
         nearby_ids = find_nearby_observation_ids(ngo_records, lat, lng)
 
         # Persist the photo through the configured backend (Supabase upload in cloud mode).
@@ -1255,7 +1311,8 @@ class DataService:
         longitude: float,
         observed_on: Optional[str] = None,
         observer: Optional[str] = "RSWF Field Volunteer",
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        allow_nearby_duplicate: bool = False,
     ) -> Dict[str, Any]:
         """
         Creates an NGO observation record for user-confirmed image geotag coordinates.
@@ -1279,6 +1336,12 @@ class DataService:
             with open(photo_path, "rb") as f:
                 sha256_hex, dhash_hex = compute_photo_fingerprint(f.read())
             raise_if_duplicate(ngo_records, sha256_hex, dhash_hex, latitude, longitude)
+
+        # Same 1-metre "same plant" guard that process_photo_upload applies, so the
+        # geotag-confirm path can't sneak around it.
+        nearby_plant = find_same_plant_observation(ngo_records, latitude, longitude)
+        if nearby_plant and not allow_nearby_duplicate:
+            raise same_plant_error(nearby_plant)
 
         records = load_clean_csv_records()
         new_id = max([r["id"] for r in records], default=227) + 1

@@ -60,6 +60,11 @@
                 </button>
             </li>
             <li class="nav-item">
+                <button data-tab="watering">
+                    <span>💧</span> Watering
+                </button>
+            </li>
+            <li class="nav-item">
                 <button data-tab="management">
                     <span>🛠️</span> Manage Plantations
                 </button>
@@ -136,6 +141,12 @@
                     <span class="kpi-label">Awaiting Species Review</span>
                     <span class="kpi-value" id="kpi-review">--</span>
                     <span class="kpi-subtext">Field uploads to confirm · View →</span>
+                </div>
+
+                <div class="kpi-card clickable" id="kpi-water-card" onclick="App.switchTab('watering')" title="Open the watering queue">
+                    <span class="kpi-label">💧 Water Today</span>
+                    <span class="kpi-value" id="kpi-water-today">--</span>
+                    <span class="kpi-subtext" id="kpi-water-sub">Plants due or overdue</span>
                 </div>
             </div>
 
@@ -316,6 +327,45 @@
                 <div class="loading-text">Loading zones...</div>
             </div>
             <div id="zones-coverage-note" class="note-card" style="display:none"></div>
+        </section>
+
+        <!-- WATERING TAB PANE -->
+        <section id="tab-watering" class="tab-pane">
+            <div class="section-header">
+                <div>
+                    <h2>Watering Reminders</h2>
+                    <p id="water-intro">RSWF plants that need watering today, soon, or that are overdue. Reminders are automatically paused during Pune's monsoon (15 June – 30 September).</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="App.loadWateringQueue()">↻ Refresh</button>
+                </div>
+            </div>
+
+            <div class="kpi-grid" id="watering-summary">
+                <div class="kpi-card loading-text">Loading watering status...</div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Plant Code</th>
+                                <th>Species</th>
+                                <th>Zone</th>
+                                <th>Last Watered</th>
+                                <th>Next Due</th>
+                                <th>Note</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="watering-table-body">
+                            <tr class="empty-row"><td colspan="8">Loading plants...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
         <!-- 6. DATA MANAGEMENT TAB PANE -->
@@ -864,8 +914,8 @@
 
 <!-- Frontend JavaScript Modules -->
 <script src="js/config.js?v=6"></script>
-<script src="js/api.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/api.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 
 </body>
 </html>

@@ -272,8 +272,23 @@ const App = {
     },
 
     requireAuth(actionCallback) {
+        const wrapped = async () => {
+            try {
+                await actionCallback();
+            } catch (err) {
+                // If the server rejected a cached password, re-prompt instead of silently failing.
+                // (buildApiError auto-clears the password on 401.)
+                if (err && err.status === 401) {
+                    this.notify("Editing password doesn't match any more. Please unlock again.", "warning", 6000);
+                    this.updateAuthStatusUI();
+                    this.openAuthModal(actionCallback);
+                    return;
+                }
+                throw err;
+            }
+        };
         if (ApiService.getNgoPassword()) {
-            actionCallback();
+            wrapped();
         } else {
             this.openAuthModal(actionCallback);
         }
@@ -294,14 +309,60 @@ const App = {
         document.getElementById("ngo-auth-modal").style.display = "none";
     },
 
-    handleAuthSubmit(e) {
+    async handleAuthSubmit(e) {
         e.preventDefault();
-        const password = document.getElementById("ngo-auth-password").value;
+        const passInput = document.getElementById("ngo-auth-password");
+        const errDiv = document.getElementById("auth-error-msg");
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const password = (passInput && passInput.value) || "";
         if (!password) return;
+
+        if (errDiv) errDiv.style.display = "none";
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.originalText = submitBtn.dataset.originalText || submitBtn.textContent;
+            submitBtn.textContent = "Checking...";
+        }
+
+        // Verify server-side before caching the password locally so a wrong try doesn't poison the session.
+        let ok = false;
+        try {
+            ok = await ApiService.verifyAdminPassword(password);
+        } catch (err) {
+            if (errDiv) {
+                errDiv.style.display = "block";
+                errDiv.textContent = `Could not reach the server: ${err.message}`;
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = submitBtn.dataset.originalText || "Unlock & Continue";
+            }
+            return;
+        }
+
+        if (!ok) {
+            if (errDiv) {
+                errDiv.style.display = "block";
+                errDiv.textContent = "That password doesn't match. Ask your RSWF admin for the current one.";
+            }
+            if (passInput) {
+                passInput.value = "";
+                passInput.focus();
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = submitBtn.dataset.originalText || "Unlock & Continue";
+            }
+            return;
+        }
 
         ApiService.setNgoPassword(password);
         this.updateAuthStatusUI();
         document.getElementById("ngo-auth-modal").style.display = "none";
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitBtn.dataset.originalText || "Unlock & Continue";
+        }
 
         if (this.pendingAction) {
             const act = this.pendingAction;
@@ -376,6 +437,9 @@ const App = {
                 case "zones":
                     await this.loadZones();
                     break;
+                case "watering":
+                    await this.loadWateringQueue();
+                    break;
                 case "management":
                     await this.loadPlantedPlants();
                     break;
@@ -407,7 +471,34 @@ const App = {
 
         this.renderZoneChart(zoneCounts);
         this.renderSourceChart(stats.observations_by_source || {});
-        await Promise.all([this.loadActionPriorities(), this.loadReviewCount()]);
+        await Promise.all([this.loadActionPriorities(), this.loadReviewCount(), this.loadWaterKpi()]);
+    },
+
+    // Compact "water today" KPI on the overview — just the overdue + due_soon count.
+    async loadWaterKpi() {
+        const el = document.getElementById("kpi-water-today");
+        const sub = document.getElementById("kpi-water-sub");
+        const card = document.getElementById("kpi-water-card");
+        if (!el) return;
+        try {
+            const res = await ApiService.getWateringQueue();
+            const s = res.summary || {};
+            if (s.is_monsoon) {
+                el.textContent = "—";
+                if (sub) sub.textContent = "Monsoon season · reminders paused";
+                if (card) card.classList.remove("attention");
+            } else {
+                const n = s.needs_water_today || 0;
+                el.textContent = n.toLocaleString();
+                if (sub) sub.textContent = n === 0
+                    ? "All plants have been watered recently"
+                    : `${s.counts?.overdue || 0} overdue · ${s.counts?.due_soon || 0} due soon · View →`;
+                if (card) card.classList.toggle("attention", n > 0);
+            }
+        } catch (err) {
+            el.textContent = "–";
+            if (sub) sub.textContent = `Could not load (${err.message || "error"})`;
+        }
     },
 
     // Number of RSWF field uploads whose species has not been confirmed or corrected yet
@@ -928,6 +1019,113 @@ const App = {
         this.loadPlantedPlants();
     },
 
+    // =====================================================================
+    // Watering tab
+    // =====================================================================
+
+    async loadWateringQueue() {
+        const tbody = document.getElementById("watering-table-body");
+        const summary = document.getElementById("watering-summary");
+        if (!tbody) return;
+
+        try {
+            const res = await ApiService.getWateringQueue();
+            const s = res.summary || {};
+            const c = s.counts || {};
+
+            // Summary KPI cards
+            const monsoonBanner = s.is_monsoon
+                ? `<div class="note-card" style="grid-column:1/-1;background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.35);color:#60a5fa"><b>🌧️ Monsoon season active.</b> Watering reminders are paused until October — the plants are getting enough rain.</div>`
+                : "";
+            if (summary) {
+                summary.innerHTML = `
+                    ${monsoonBanner}
+                    <div class="kpi-card ${c.overdue ? 'attention' : ''}">
+                        <span class="kpi-label">🔴 Overdue</span>
+                        <span class="kpi-value">${(c.overdue || 0).toLocaleString()}</span>
+                        <span class="kpi-subtext">Should have been watered already</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">🟡 Due Soon</span>
+                        <span class="kpi-value">${(c.due_soon || 0).toLocaleString()}</span>
+                        <span class="kpi-subtext">Water today or tomorrow</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">✅ OK</span>
+                        <span class="kpi-value">${(c.ok || 0).toLocaleString()}</span>
+                        <span class="kpi-subtext">Watered recently enough</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">🚫 Skipped</span>
+                        <span class="kpi-value">${(c.skip || 0).toLocaleString()}</span>
+                        <span class="kpi-subtext">Monsoon, dead or opted out</span>
+                    </div>
+                `;
+            }
+
+            const queue = res.queue || [];
+            if (!queue.length) {
+                tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No planted plants registered yet.</td></tr>`;
+                return;
+            }
+
+            const bucketPill = (bucket) => {
+                const map = {
+                    overdue: ['<span class="pill" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.5)">🔴 Overdue</span>'],
+                    due_soon: ['<span class="pill" style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.5)">🟡 Due soon</span>'],
+                    ok: ['<span class="pill" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.5)">✅ OK</span>'],
+                    skip: ['<span class="pill" style="background:rgba(148,163,184,0.15);color:#cbd5e1;border:1px solid rgba(148,163,184,0.5)">🚫 Skip</span>'],
+                };
+                return map[bucket] || map.skip;
+            };
+
+            tbody.innerHTML = queue.map(a => {
+                const w = a.watering || {};
+                const nameParts = [];
+                if (a.scientific_name) nameParts.push(`<i>${this.esc(a.scientific_name)}</i>`);
+                if (a.common_name) nameParts.push(this.esc(a.common_name));
+                const name = nameParts.join(" · ") || '<span class="muted">Unspecified</span>';
+                const lastW = w.last_watered
+                    ? new Date(w.last_watered + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                    : '<span class="faint">Never</span>';
+                const nextD = w.next_due
+                    ? new Date(w.next_due + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+                    : "—";
+                const canWater = w.bucket !== "skip";
+                const btn = canWater
+                    ? `<button class="btn-action success" onclick="App.markWatered(${Number(a.plant_id)}, ${this.esc(JSON.stringify(a.plant_code || ""))})" title="Record that this plant was watered today">💧 Mark watered</button>`
+                    : `<span class="faint">—</span>`;
+                return `
+                    <tr>
+                        <td>${bucketPill(w.bucket)}</td>
+                        <td><b>${this.esc(a.plant_code)}</b></td>
+                        <td>${name}</td>
+                        <td>${this.zoneLabel(a.zone_code)}</td>
+                        <td style="white-space:nowrap">${lastW}</td>
+                        <td style="white-space:nowrap">${nextD}</td>
+                        <td>${this.esc(w.note || "")}</td>
+                        <td class="cell-actions">${btn}</td>
+                    </tr>
+                `;
+            }).join("");
+        } catch (err) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="8" style="color:#f87171">Could not load watering queue: ${this.esc(err.message)}</td></tr>`;
+        }
+    },
+
+    markWatered(plantId, plantCode) {
+        this.requireAuth(async () => {
+            try {
+                const res = await ApiService.markPlantWatered(plantId);
+                this.notify(`💧 Marked ${plantCode || "plant #" + plantId} as watered today.`);
+                await this.loadWateringQueue();
+                this.loadWaterKpi();
+            } catch (err) {
+                this.notify(`Could not mark as watered: ${err.message}`, "error", 7000);
+            }
+        });
+    },
+
     openAddPlantModal() {
         this.requireAuth(() => this._doOpenAddPlantModal());
     },
@@ -1392,8 +1590,12 @@ const App = {
                 data.photo_url,
                 data.latitude,
                 data.longitude,
-                data.captured_at
+                data.captured_at,
+                "RSWF Field Volunteer",
+                null,
+                !!this.pendingGeotagAllowNearby,
             );
+            this.pendingGeotagAllowNearby = false;
 
             this.currentUploadedObsId = res.observation_id;
             this.pendingGeotagData = null;
@@ -1434,8 +1636,9 @@ const App = {
         }
     },
 
-    // Shown when the uploaded photo is already recorded: points the user to the existing
-    // observation and makes it the active one, so AI identification continues on that record.
+    // Shown when the upload matches an existing record. Two flavours:
+    //   - "exact": identical photo already uploaded. The existing record becomes the active one.
+    //   - "nearby": a different photo within ~1 m of an existing plant. User can override.
     showDuplicateUploadResult(dup) {
         const resultCard = document.getElementById("upload-result-card");
         const resultTitle = document.getElementById("upload-result-title");
@@ -1444,7 +1647,11 @@ const App = {
         const confirmBox = document.getElementById("geotag-confirmation-box");
         const aiContainer = document.getElementById("upload-ai-trigger-container");
 
-        resultTitle.innerHTML = "📋 This photo is already in the records";
+        const isNearby = dup.duplicate_kind === "nearby" || dup.overridable;
+
+        resultTitle.innerHTML = isNearby
+            ? "📍 Looks like the same plant"
+            : "📋 This photo is already in the records";
         resultCard.style.background = "rgba(245, 158, 11, 0.08)";
         resultCard.style.borderColor = "rgba(245, 158, 11, 0.35)";
         resultTitle.style.color = "#fbbf24";
@@ -1462,21 +1669,35 @@ const App = {
             <div style="color:#94a3b8">${label}</div>
             <div style="color:#e2e8f0">${value}</div>`;
 
-        resultDetails.innerHTML = `
-            <div style="color:#e2e8f0;margin-bottom:0.75rem;line-height:1.5">
-                You've uploaded this photo before. It's saved as
+        const intro = isNearby
+            ? `A plant is already recorded within <b>1 metre</b> of this spot as
+                <b style="color:#fbbf24">Observation #${dup.existing_observation_id}</b>.
+                This is probably the same plant from a different angle — the camera's GPS reading
+                naturally wobbles by a metre or two. If so, no new record is needed.`
+            : `You've uploaded this photo before. It's saved as
                 <b style="color:#fbbf24">Observation #${dup.existing_observation_id}</b>,
-                so no new record was added.
-            </div>
+                so no new record was added.`;
+
+        const overrideBtn = isNearby ? `
+            <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+                <button type="button" class="btn-primary btn-small" onclick="App.recordNearbyAnyway()" style="background:#f59e0b;color:#0f172a">
+                    This is a different plant — record anyway
+                </button>
+                <span style="color:#94a3b8;font-size:0.8rem">(only when two plants really grow this close)</span>
+            </div>` : "";
+
+        resultDetails.innerHTML = `
+            <div style="color:#e2e8f0;margin-bottom:0.75rem;line-height:1.5">${intro}</div>
             <div style="display:grid;grid-template-columns:max-content 1fr;gap:0.3rem 1rem;font-size:0.9rem;padding:0.6rem 0.75rem;background:rgba(15,23,42,0.45);border-radius:8px">
                 ${row("Species", species)}
                 ${row("Zone", `<span style="color:#fbbf24;font-weight:600">${dup.zone}</span>`)}
                 ${row("Coordinates", `${lat}, ${lng}`)}
                 ${row("Recorded on", observedOn)}
             </div>
+            ${overrideBtn}
             <div style="margin-top:0.75rem;color:#94a3b8;font-size:0.85rem;line-height:1.5">
                 To identify it again, use the <b style="color:#cbd5e1">Pl@ntNet AI</b> button below.
-                To record a new sighting, upload a different photo.
+                To record a new sighting of a different plant, upload a photo from further away.
             </div>
         `;
 
@@ -1491,6 +1712,35 @@ const App = {
         if (confirmBox) confirmBox.style.display = "none";
         if (aiContainer) aiContainer.style.display = "flex";
         resultCard.style.display = "block";
+    },
+
+    // Retries the upload with allow_nearby_duplicate=true so the backend records it as a new
+    // plant even though it sits within the 1-metre same-plant guard.
+    async recordNearbyAnyway() {
+        const fileInput = document.getElementById("upload-photo-file");
+        if (!fileInput || !fileInput.files || !fileInput.files.length) {
+            this.notify("Please pick the photo again — the file was cleared.", "warning");
+            return;
+        }
+        const file = fileInput.files[0];
+        try {
+            const res = await ApiService.uploadPhotoObservation(file, { allowNearbyDuplicate: true });
+            if (res.requires_confirmation) {
+                this.pendingGeotagData = res;
+                this.pendingGeotagAllowNearby = true;
+                this.notify("Confirm the location to finish saving the new plant.", "warning");
+                document.getElementById("geotag-confirmation-box").style.display = "block";
+                return;
+            }
+            this.notify(`✓ Recorded as Observation #${res.observation_id}.`);
+            this.currentUploadedObsId = res.observation_id;
+            await this.loadObservations();
+            await this.loadOverview();
+            if (this.map) await this.loadMapData();
+            this.closeUploadPhotoModal();
+        } catch (err) {
+            this.notify(`Could not save: ${err.message}`, "error", 7000);
+        }
     },
 
     // Note for results where other observations exist at (almost) the same coordinates.

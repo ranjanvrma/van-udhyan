@@ -71,7 +71,15 @@ def create_ngo_observation(obs_data: NGOObservationCreate):
 async def upload_photo_observation(
     response: Response,
     file: UploadFile = File(...),
-    confirm_location: bool = Query(False, description="Set to true if user confirms visible image geotag coordinates")
+    confirm_location: bool = Query(False, description="Set to true if user confirms visible image geotag coordinates"),
+    allow_nearby_duplicate: bool = Query(
+        False,
+        description=(
+            "By default, uploading a photo within ~1 metre of an existing plant observation is "
+            "rejected as the same plant (409 Conflict). Set true when two plants genuinely grow "
+            "that close together and you want to record the new one anyway."
+        ),
+    ),
 ):
     """
     Upload a plant/biodiversity photo.
@@ -85,7 +93,11 @@ async def upload_photo_observation(
     content_type = file.content_type or "image/jpeg"
 
     try:
-        res = DataService.process_photo_upload(contents, filename, content_type, confirm_location=confirm_location)
+        res = DataService.process_photo_upload(
+            contents, filename, content_type,
+            confirm_location=confirm_location,
+            allow_nearby_duplicate=allow_nearby_duplicate,
+        )
         if not res.get("success"):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -109,7 +121,13 @@ async def upload_photo_observation(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 @router.post("/confirm-location", status_code=status.HTTP_201_CREATED)
-def confirm_geotag_location(req: GeotagLocationConfirmRequest):
+def confirm_geotag_location(
+    req: GeotagLocationConfirmRequest,
+    allow_nearby_duplicate: bool = Query(
+        False,
+        description="Override the 1 metre same-plant guard (see /observations/upload for details)."
+    ),
+):
     """
     Confirms user-verified coordinates detected from a visible image geotag overlay.
     Validates boundary containment inside Van Udyan and persists the observation.
@@ -121,7 +139,8 @@ def confirm_geotag_location(req: GeotagLocationConfirmRequest):
             longitude=req.longitude,
             observed_on=req.observed_on,
             observer=req.observer,
-            notes=req.notes
+            notes=req.notes,
+            allow_nearby_duplicate=allow_nearby_duplicate,
         )
         return res
     except DuplicateObservationError as e:

@@ -108,7 +108,8 @@ def test_upload_valid_gps_inside_van_udyan():
 
 # 2. Valid image with GPS inside Zone A
 def test_upload_gps_inside_zone_a():
-    img_bytes = create_test_jpeg_with_gps(18.5184386, 73.7802123)
+    # Offset ~3 m from test 1 so the new 1-metre same-plant guard treats this as a different plant.
+    img_bytes = create_test_jpeg_with_gps(18.5184636, 73.7802123)
     files = {"file": ("zone_a_plant.jpg", img_bytes, "image/jpeg")}
     response = client.post("/api/v1/observations/upload", files=files)
     assert response.status_code == 201
@@ -183,7 +184,8 @@ def test_safe_filename_generation():
 
 # 11. Provenance preservation check
 def test_upload_provenance():
-    img_bytes = create_test_jpeg_with_gps(18.5184386, 73.7802123)
+    # Different spot in Zone A so this isn't rejected as "same plant" as earlier tests.
+    img_bytes = create_test_jpeg_with_gps(18.5184886, 73.7802123)
     files = {"file": ("provenance_test.jpg", img_bytes, "image/jpeg")}
     response = client.post("/api/v1/observations/upload", files=files)
     assert response.status_code == 201
@@ -262,7 +264,8 @@ def _structured_test_image() -> Image.Image:
 
 # 14. Same photo uploaded twice -> second upload rejected, points to existing observation
 def test_duplicate_exif_upload_rejected():
-    img_bytes = create_test_jpeg_with_gps(18.5187710, 73.7800814)
+    # Offset to a fresh spot (3 m north of zone-B test) so this independent test owns its coords.
+    img_bytes = create_test_jpeg_with_gps(18.5187971, 73.7800814)
     files = {"file": ("dup_plant.jpg", img_bytes, "image/jpeg")}
     first = client.post("/api/v1/observations/upload", files=files)
     assert first.status_code == 201
@@ -280,9 +283,10 @@ def test_duplicate_exif_upload_rejected():
 
 # 15. Same image re-compressed (e.g. forwarded again on WhatsApp) at the same spot -> rejected
 def test_recompressed_duplicate_upload_rejected():
+    # Offset so this test gets its own virgin spot.
     img = _structured_test_image()
-    original = create_test_jpeg_with_gps(18.5190233, 73.7798533, img=img, quality=92)
-    recompressed = create_test_jpeg_with_gps(18.5190233, 73.7798533, img=img, quality=55)
+    original = create_test_jpeg_with_gps(18.5190494, 73.7798533, img=img, quality=92)
+    recompressed = create_test_jpeg_with_gps(18.5190494, 73.7798533, img=img, quality=55)
     assert original != recompressed
 
     first = client.post("/api/v1/observations/upload", files={"file": ("orig.jpg", original, "image/jpeg")})
@@ -291,18 +295,42 @@ def test_recompressed_duplicate_upload_rejected():
     assert second.status_code == 409
     assert second.json()["detail"]["existing_observation_id"] == first.json()["observation_id"]
 
-# 16. Different photo at the same coordinates -> accepted, but flagged as a possible duplicate
-def test_different_photo_same_location_flagged_not_blocked():
-    lat, lng = 18.5194060, 73.7791570
-    first = client.post("/api/v1/observations/upload", files={"file": ("a.jpg", create_test_jpeg_with_gps(lat, lng), "image/jpeg")})
+# 16. Two different photos at the same spot are now treated as the same plant by default,
+#     but the uploader can override with allow_nearby_duplicate=true.
+def test_same_spot_treated_as_same_plant_but_overridable():
+    # Fresh spot, outside the active zones.
+    lat, lng = 18.5194321, 73.7791570
+    first = client.post(
+        "/api/v1/observations/upload",
+        files={"file": ("a.jpg", create_test_jpeg_with_gps(lat, lng), "image/jpeg")},
+    )
     assert first.status_code == 201
-    second = client.post("/api/v1/observations/upload", files={"file": ("b.jpg", create_test_jpeg_with_gps(lat, lng), "image/jpeg")})
-    assert second.status_code == 201
-    assert first.json()["observation_id"] in second.json()["nearby_observation_ids"]
+    first_id = first.json()["observation_id"]
+
+    # Default behaviour: a second photo within 1 m is rejected as the same plant.
+    second = client.post(
+        "/api/v1/observations/upload",
+        files={"file": ("b.jpg", create_test_jpeg_with_gps(lat, lng), "image/jpeg")},
+    )
+    assert second.status_code == 409
+    detail = second.json()["detail"]
+    assert detail["duplicate_kind"] == "nearby"
+    assert detail["overridable"] is True
+    assert detail["existing_observation_id"] == first_id
+
+    # Override: pass allow_nearby_duplicate=true and the backend records it as a new plant.
+    third = client.post(
+        "/api/v1/observations/upload?allow_nearby_duplicate=true",
+        files={"file": ("c.jpg", create_test_jpeg_with_gps(lat, lng), "image/jpeg")},
+    )
+    assert third.status_code == 201
+    assert third.json()["observation_id"] != first_id
 
 # 17. Geotag photo: re-upload after confirmation and double confirmation are both rejected
 def test_duplicate_geotag_upload_and_confirm_rejected():
-    geotag_bytes = create_test_geotag_jpeg("Lat 18.518771 Long 73.780081")
+    # Fresh coord well away from other test spots so the 1-metre same-plant guard isn't triggered
+    # by an earlier test having already recorded a plant here.
+    geotag_bytes = create_test_geotag_jpeg("Lat 18.518850 Long 73.779950")
     res = client.post("/api/v1/observations/upload", files={"file": ("wa.jpg", geotag_bytes, "image/jpeg")})
     assert res.status_code == 200
     data = res.json()

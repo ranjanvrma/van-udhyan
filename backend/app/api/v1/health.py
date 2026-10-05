@@ -3,14 +3,27 @@ Health Check Router Module
 Provides GET /health and GET /health/db endpoints.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.db.session import get_db
 from app.schemas.schemas import HealthResponse, DBHealthResponse
 from app.core.config import settings
+from app.core.security import verify_ngo_admin_password
 
 router = APIRouter(tags=["Health & Status"])
+
+
+@router.post("/auth/verify", include_in_schema=False)
+def verify_admin_password(_: str = Depends(verify_ngo_admin_password)):
+    """
+    Lightweight password check used by the dashboard's unlock dialog.
+    - 204 No Content when the X-NGO-Admin-Password header matches the server's password.
+    - 401 Unauthorized when the password is missing or wrong.
+    Does not touch the database or persist anything.
+    """
+    return Response(status_code=204)
+
 
 @router.get("/health", response_model=HealthResponse)
 def get_health():

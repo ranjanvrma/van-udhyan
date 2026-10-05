@@ -106,6 +106,35 @@ class ApiService {
         return this.fetchJson(window.APP_CONFIG.getEndpoint("/health"));
     }
 
+    // Watering reminders
+    static getWateringQueue() {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint("/planted-plants/watering"));
+    }
+
+    static markPlantWatered(plantId, onDate = null, observer = null) {
+        const params = new URLSearchParams();
+        if (onDate) params.set("on_date", onDate);
+        if (observer) params.set("observer", observer);
+        const query = params.toString();
+        return this.fetchJson(
+            window.APP_CONFIG.getEndpoint(`/planted-plants/${plantId}/watered` + (query ? "?" + query : "")),
+            { method: "POST" },
+        );
+    }
+
+    // Server-side check of the admin password. Returns true if the given password matches,
+    // false if the backend rejected it with 401. Throws for any other error (network, 500, etc.).
+    static async verifyAdminPassword(candidatePassword) {
+        const url = window.APP_CONFIG.getEndpoint("/auth/verify");
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "X-NGO-Admin-Password": candidatePassword || "" },
+        });
+        if (resp.status === 204) return true;
+        if (resp.status === 401) return false;
+        throw await this.buildApiError(resp);
+    }
+
     static getDbHealth() {
         return this.fetchJson(window.APP_CONFIG.getEndpoint("/health/db"));
     }
@@ -137,25 +166,28 @@ class ApiService {
     }
 
     // Photo Upload & Location Detection (EXIF & Image Geotag)
-    static async uploadPhotoObservation(file, confirmLocation = false) {
+    // allowNearbyDuplicate=true overrides the 1-metre same-plant guard (second attempt after the
+    // user confirms "no, this really is a different plant").
+    static async uploadPhotoObservation(file, { confirmLocation = false, allowNearbyDuplicate = false } = {}) {
         const formData = new FormData();
         formData.append("file", file);
 
-        const endpoint = confirmLocation ? "/observations/upload?confirm_location=true" : "/observations/upload";
-        const url = window.APP_CONFIG.getEndpoint(endpoint);
-        const response = await fetch(url, {
-            method: "POST",
-            body: formData
-        });
+        const params = new URLSearchParams();
+        if (confirmLocation) params.set("confirm_location", "true");
+        if (allowNearbyDuplicate) params.set("allow_nearby_duplicate", "true");
+        const query = params.toString();
+        const url = window.APP_CONFIG.getEndpoint("/observations/upload" + (query ? "?" + query : ""));
 
+        const response = await fetch(url, { method: "POST", body: formData });
         if (!response.ok) {
             throw await this.buildApiError(response);
         }
         return await response.json();
     }
 
-    static async confirmGeotagLocation(photoUrl, latitude, longitude, observedOn = null, observer = "RSWF Field Volunteer", notes = null) {
-        return this.fetchJson(window.APP_CONFIG.getEndpoint("/observations/confirm-location"), {
+    static async confirmGeotagLocation(photoUrl, latitude, longitude, observedOn = null, observer = "RSWF Field Volunteer", notes = null, allowNearbyDuplicate = false) {
+        const q = allowNearbyDuplicate ? "?allow_nearby_duplicate=true" : "";
+        return this.fetchJson(window.APP_CONFIG.getEndpoint("/observations/confirm-location" + q), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
