@@ -15,9 +15,6 @@
     <!-- Leaflet GIS CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
-    <!-- MapLibre GL JS (lazy-loaded only when 3D terrain is toggled on) -->
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
-
     <!-- Verdant theme — minimal / performant / cache-busted -->
     <link rel="stylesheet" href="css/theme-verdant.css?v=p15">
 
@@ -27,7 +24,6 @@
     <!-- Chart.js & Leaflet JS CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
 </head>
 <body>
 
@@ -69,11 +65,6 @@
             <li class="nav-item">
                 <button data-tab="watering">
                     <span>💧</span> Watering
-                </button>
-            </li>
-            <li class="nav-item">
-                <button data-tab="insights">
-                    <span>📈</span> Insights
                 </button>
             </li>
             <li class="nav-item">
@@ -213,9 +204,6 @@
                         <h3>Biodiversity Map</h3>
                         <p>Site boundary, monitoring zones and every recorded plant. Click a point for details; use the layer button to show or hide groups.</p>
                     </div>
-                    <div style="display:flex; gap:0.5rem; align-items:center">
-                        <button id="toggle-3d-terrain" class="btn-action" onclick="App.toggle3DTerrain()" title="Switch between flat Leaflet and 3D terrain">🏔 3D Terrain</button>
-                    </div>
                     <div class="map-legend">
                         <span class="legend-item"><span class="legend-line"></span> Site boundary</span>
                         <span class="legend-item"><span class="legend-zone"></span> Zones A / B / C</span>
@@ -225,7 +213,6 @@
                     </div>
                 </div>
                 <div id="leaflet-map"></div>
-                <div id="maplibre-map" style="display:none; width:100%; flex:1; min-height:420px"></div>
             </div>
         </section>
 
@@ -392,48 +379,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </section>
-
-        <!-- INSIGHTS TAB — biodiversity indices (Shannon / Simpson / richness) -->
-        <section id="tab-insights" class="tab-pane">
-            <div class="section-header">
-                <div>
-                    <h2>Biodiversity Insights</h2>
-                    <p>Standard ecology metrics computed live from every recorded sighting. Higher Shannon &amp; Simpson values mean more diverse communities; evenness tells you how balanced those communities are.</p>
-                </div>
-                <div class="section-actions">
-                    <button class="btn-primary" onclick="App.loadInsights()">↻ Refresh</button>
-                </div>
-            </div>
-
-            <div class="kpi-grid" id="indices-overall">
-                <div class="kpi-card loading-text">Computing indices…</div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-header"><h3>Per-zone diversity</h3><span class="panel-tag">live</span></div>
-                <div class="table-scroll">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Zone</th><th>Species richness</th><th>Observations</th><th>Shannon H'</th><th>Simpson 1-D</th><th>Pielou evenness</th></tr>
-                        </thead>
-                        <tbody id="indices-zone-body"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="chart-card" style="margin-top:1.25rem; height:340px">
-                <div class="chart-title">Rolling 90-day Shannon trend</div>
-                <div class="chart-subtitle">A sliding 90-day window re-scored every 15 days.</div>
-                <div class="chart-container"><canvas id="chart-shannon-trend"></canvas></div>
-            </div>
-
-            <div class="note-card" style="margin-top:1.25rem">
-                <strong>Reading the numbers:</strong>
-                <b>Shannon H'</b> rewards both species richness and even abundance (0 = monoculture, 2.5+ = diverse site).
-                <b>Simpson 1-D</b> is the chance two random sightings are different species (closer to 1 = more diverse).
-                <b>Pielou J</b> is how evenly individuals are spread across species (1 = perfectly even).
             </div>
         </section>
 
@@ -1056,9 +1001,9 @@
 <script src="js/config.local.js" onerror="void 0"></script>
 
 <!-- Frontend JavaScript Modules -->
-<script src="js/config.js?v=p15"></script>
-<script src="js/api.js?v=p15"></script>
-<script src="js/app.js?v=p15"></script>
+<script src="js/config.js?v=p15b"></script>
+<script src="js/api.js?v=p15b"></script>
+<script src="js/app.js?v=p15b"></script>
 
 </body>
 </html>

@@ -478,9 +478,6 @@ const App = {
                     await this.loadWeather();
                     await this.loadWateringQueue();
                     break;
-                case "insights":
-                    await this.loadInsights();
-                    break;
                 case "verify":
                     await this.loadVerificationQueue();
                     break;
@@ -2288,65 +2285,6 @@ const App = {
         }
     },
 
-    // --- Insights tab (biodiversity indices) ---
-    async loadInsights() {
-        const overall = document.getElementById("indices-overall");
-        const zoneBody = document.getElementById("indices-zone-body");
-        if (!overall) return;
-        try {
-            const data = await ApiService.getBiodiversityIndices();
-            const o = data.overall || {};
-            overall.innerHTML = `
-                <div class="kpi-card"><div class="kpi-label">Species richness</div><div class="kpi-value">${o.species_richness ?? 0}</div><div class="kpi-subtext">distinct taxa recorded</div></div>
-                <div class="kpi-card"><div class="kpi-label">Shannon H'</div><div class="kpi-value">${(o.shannon_index ?? 0).toFixed(2)}</div><div class="kpi-subtext">site-wide diversity</div></div>
-                <div class="kpi-card"><div class="kpi-label">Simpson 1−D</div><div class="kpi-value">${(o.simpson_index ?? 0).toFixed(2)}</div><div class="kpi-subtext">closer to 1 is better</div></div>
-                <div class="kpi-card"><div class="kpi-label">Pielou J</div><div class="kpi-value">${(o.pielou_evenness ?? 0).toFixed(2)}</div><div class="kpi-subtext">how evenly spread</div></div>
-            `;
-            const rows = (data.zones || []).map(z => `
-                <tr><td><b>${z.zone}</b></td><td>${z.species_richness}</td><td>${z.total_observations}</td><td>${z.shannon_index.toFixed(2)}</td><td>${z.simpson_index.toFixed(2)}</td><td>${z.pielou_evenness.toFixed(2)}</td></tr>
-            `).join("");
-            zoneBody.innerHTML = rows || `<tr class="empty-row"><td colspan="6">No per-zone data available yet.</td></tr>`;
-
-            // Trend chart
-            const trend = await ApiService.getBiodiversityTrend(90, 15).catch(() => ({series: []}));
-            this.renderShannonTrend(trend.series || []);
-        } catch (e) {
-            overall.innerHTML = `<div class="kpi-card"><div class="kpi-label">Error</div><div class="kpi-subtext">${e.message}</div></div>`;
-        }
-    },
-
-    renderShannonTrend(series) {
-        const canvas = document.getElementById("chart-shannon-trend");
-        if (!canvas || !window.Chart) return;
-        if (this._shannonChart) { this._shannonChart.destroy(); this._shannonChart = null; }
-        const labels = series.map(p => p.date);
-        const data = series.map(p => p.shannon);
-        this._shannonChart = new Chart(canvas, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label: "Shannon H' (90-day window)",
-                    data,
-                    borderColor: '#22C55E',
-                    backgroundColor: 'rgba(34,197,94,0.15)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 2,
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                responsive: true,
-                plugins: { legend: { labels: { color: '#A6B8AD' } } },
-                scales: {
-                    x: { ticks: { color: '#A6B8AD', maxRotation: 0, autoSkip: true }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { beginAtZero: true, ticks: { color: '#A6B8AD' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                }
-            }
-        });
-    },
-
     // --- Verification queue with keyboard shortcuts ---
     async loadVerificationQueue() {
         this._verifyQueue = null;
@@ -2533,73 +2471,6 @@ const App = {
         }
     },
 
-    // --- 3D terrain toggle (MapLibre lazy init) ---
-    toggle3DTerrain() {
-        const flat = document.getElementById("leaflet-map");
-        const three = document.getElementById("maplibre-map");
-        const btn = document.getElementById("toggle-3d-terrain");
-        if (!flat || !three) return;
-        if (three.style.display === "none") {
-            flat.style.display = "none";
-            three.style.display = "block";
-            btn.textContent = "🗺 Flat map";
-            this._init3DMap();
-        } else {
-            three.style.display = "none";
-            flat.style.display = "block";
-            btn.textContent = "🏔 3D Terrain";
-            setTimeout(() => { if (this._leafletMap) this._leafletMap.invalidateSize(); }, 100);
-        }
-    },
-
-    _init3DMap() {
-        if (!window.maplibregl) {
-            document.getElementById("maplibre-map").innerHTML = '<div class="muted" style="padding:2rem;text-align:center">MapLibre is still loading… try again in a moment.</div>';
-            return;
-        }
-        if (this._mlMap) return;
-        this._mlMap = new maplibregl.Map({
-            container: "maplibre-map",
-            style: {
-                version: 8,
-                sources: {
-                    "osm-raster": { type: "raster", tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, attribution: "© OpenStreetMap contributors" },
-                    "terrain-dem": { type: "raster-dem", tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"], tileSize: 256, encoding: "terrarium", maxzoom: 15 }
-                },
-                layers: [{ id: "osm", type: "raster", source: "osm-raster" }],
-                terrain: { source: "terrain-dem", exaggeration: 1.8 }
-            },
-            center: [73.7802, 18.5195],
-            zoom: 15.5,
-            pitch: 60,
-            bearing: -20,
-        });
-        this._mlMap.on("load", async () => {
-            this._mlMap.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
-            try {
-                const obs = await ApiService.getMapObservations({});
-                const feats = (obs.data || obs).map(o => ({
-                    type: "Feature",
-                    geometry: { type: "Point", coordinates: [Number(o.longitude), Number(o.latitude)] },
-                    properties: { name: o.scientific_name, source: o.source }
-                })).filter(f => Number.isFinite(f.geometry.coordinates[0]) && Number.isFinite(f.geometry.coordinates[1]));
-                this._mlMap.addSource("obs", { type: "geojson", data: { type: "FeatureCollection", features: feats } });
-                this._mlMap.addLayer({
-                    id: "obs-dots",
-                    type: "circle",
-                    source: "obs",
-                    paint: {
-                        "circle-radius": 5,
-                        "circle-color": ["match", ["get", "source"], "iNaturalist", "#22C55E", "Planted Plants", "#38BDF8", "#F97316"],
-                        "circle-stroke-width": 1,
-                        "circle-stroke-color": "#fff"
-                    }
-                });
-            } catch (e) {
-                console.warn("3D map pin layer:", e);
-            }
-        });
-    }
 };
 
 window.App = App;

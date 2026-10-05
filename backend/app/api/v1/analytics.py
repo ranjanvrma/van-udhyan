@@ -7,30 +7,12 @@ rule-based action priorities, species distribution, and temporal timeline.
 from fastapi import APIRouter, Query, status
 from app.services.analytics_service import AnalyticsService
 from app.services.insights_service import (
-    biodiversity_indices,
-    biodiversity_trend,
-    species_index,
     species_profile,
     verification_queue,
 )
 from app.services.weather_service import get_watering_weather
 
 router = APIRouter(prefix="/analytics", tags=["Advanced Analytics & Conservation Insights"])
-
-@router.get("/biodiversity-indices")
-def get_biodiversity_indices():
-    """Shannon, Simpson, Pielou evenness and richness — overall + per zone."""
-    return biodiversity_indices()
-
-@router.get("/biodiversity-trend")
-def get_biodiversity_trend(window_days: int = Query(90, ge=14, le=365), step_days: int = Query(15, ge=1, le=60)):
-    """Rolling site-wide Shannon index for a sliding window."""
-    return biodiversity_trend(window_days=window_days, step_days=step_days)
-
-@router.get("/species-index")
-def get_species_index():
-    """Alphabetical index of every distinct species with observation counts and a cover photo."""
-    return species_index()
 
 @router.get("/species-profile")
 def get_species_profile(name: str = Query(..., min_length=2, description="Scientific name (case-insensitive)")):

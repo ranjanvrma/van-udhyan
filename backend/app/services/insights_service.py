@@ -1,141 +1,20 @@
 """
-Insights Service — biodiversity indices, species profiles, verification queue.
+Insights Service — species profiles + verification queue.
 
 Pure analytics on top of the existing observation stores. No new data
 sources, no DB migrations.
 """
 from __future__ import annotations
 
-import math
-from collections import Counter, defaultdict
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from collections import Counter
+from datetime import datetime
+from typing import Any, Dict, List
 
 from app.services.data_service import (
     load_clean_csv_records,
     load_planted_plants_store,
     load_ngo_observations_store,
 )
-
-
-# ---------------------------------------------------------------------------
-# Biodiversity indices
-# ---------------------------------------------------------------------------
-def _shannon(counts: List[int]) -> float:
-    total = sum(counts)
-    if total == 0:
-        return 0.0
-    h = 0.0
-    for n in counts:
-        if n <= 0:
-            continue
-        p = n / total
-        h -= p * math.log(p)
-    return round(h, 3)
-
-
-def _simpson(counts: List[int]) -> float:
-    """Simpson's diversity index (1 - D). Higher = more diverse."""
-    total = sum(counts)
-    if total <= 1:
-        return 0.0
-    d = sum(n * (n - 1) for n in counts) / (total * (total - 1))
-    return round(1 - d, 3)
-
-
-def _evenness(counts: List[int]) -> float:
-    """Pielou's evenness = Shannon / ln(richness)."""
-    richness = len([n for n in counts if n > 0])
-    if richness <= 1:
-        return 0.0
-    return round(_shannon(counts) / math.log(richness), 3)
-
-
-def _collect_by_zone() -> Dict[str, Counter]:
-    """Species counts keyed by zone (uppercase zone codes)."""
-    buckets: Dict[str, Counter] = defaultdict(Counter)
-    for r in load_clean_csv_records():
-        sp = (r.get("scientific_name") or "").strip().lower()
-        if not sp:
-            continue
-        zone = (r.get("zone") or r.get("zone_code") or "").strip().upper() or "OUTSIDE"
-        buckets[zone][sp] += 1
-    return buckets
-
-
-def biodiversity_indices() -> Dict[str, Any]:
-    buckets = _collect_by_zone()
-    overall = Counter()
-    for b in buckets.values():
-        overall.update(b)
-
-    def pack(counter: Counter) -> Dict[str, Any]:
-        counts = list(counter.values())
-        return {
-            "species_richness": len([n for n in counts if n > 0]),
-            "total_observations": sum(counts),
-            "shannon_index": _shannon(counts),
-            "simpson_index": _simpson(counts),
-            "pielou_evenness": _evenness(counts),
-        }
-
-    zones_out = []
-    for name in ("ZONE A", "ZONE B", "ZONE C", "OUTSIDE"):
-        if name in buckets:
-            z = pack(buckets[name])
-            z["zone"] = name
-            zones_out.append(z)
-
-    return {
-        "overall": pack(overall),
-        "zones": zones_out,
-        "glossary": {
-            "shannon_index": "Shannon H' — considers both richness and abundance; 0 = monoculture, higher = more diverse.",
-            "simpson_index": "1-D — probability two random individuals belong to different species; closer to 1 = more diverse.",
-            "pielou_evenness": "J — how evenly individuals are spread across species; 1 = perfectly even.",
-            "species_richness": "Number of distinct species recorded.",
-        },
-    }
-
-
-def biodiversity_trend(window_days: int = 90, step_days: int = 15) -> Dict[str, Any]:
-    """Rolling Shannon index over a sliding window — site-wide."""
-    records = load_clean_csv_records()
-    dated: List[Tuple[datetime, str]] = []
-    for r in records:
-        d = r.get("observed_on")
-        sp = (r.get("scientific_name") or "").strip().lower()
-        if not d or not sp:
-            continue
-        try:
-            dated.append((datetime.strptime(d, "%Y-%m-%d"), sp))
-        except ValueError:
-            continue
-    if not dated:
-        return {"series": []}
-
-    dated.sort(key=lambda x: x[0])
-    first = dated[0][0]
-    last = dated[-1][0]
-    points = []
-    cursor = first + timedelta(days=window_days)
-    while cursor <= last + timedelta(days=step_days):
-        start = cursor - timedelta(days=window_days)
-        window = [sp for d, sp in dated if start <= d <= cursor]
-        if window:
-            c = Counter(window).values()
-            points.append({
-                "date": cursor.strftime("%Y-%m-%d"),
-                "shannon": _shannon(list(c)),
-                "richness": len(set(window)),
-                "n": len(window),
-            })
-        cursor += timedelta(days=step_days)
-    return {
-        "series": points,
-        "window_days": window_days,
-        "step_days": step_days,
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -234,30 +113,6 @@ def species_profile(scientific_name: str) -> Dict[str, Any]:
         "planted_count": len(plants),
         "pins": pins,
     }
-
-
-def species_index() -> List[Dict[str, Any]]:
-    """Alphabetical list of all distinct species with observation counts (for the species gallery)."""
-    all_obs = load_clean_csv_records()
-    buckets: Dict[str, Dict[str, Any]] = {}
-    for r in all_obs:
-        sci = (r.get("scientific_name") or "").strip()
-        if not sci:
-            continue
-        key = sci.lower()
-        if key not in buckets:
-            buckets[key] = {
-                "scientific_name": sci,
-                "common_name": r.get("common_name") or "",
-                "count": 0,
-                "photo_url": None,
-            }
-        buckets[key]["count"] += 1
-        if not buckets[key]["photo_url"] and r.get("photo_url"):
-            buckets[key]["photo_url"] = r.get("photo_url")
-        if not buckets[key]["common_name"] and r.get("common_name"):
-            buckets[key]["common_name"] = r.get("common_name")
-    return sorted(buckets.values(), key=lambda b: (-b["count"], b["scientific_name"]))
 
 
 # ---------------------------------------------------------------------------

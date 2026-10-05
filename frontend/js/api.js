@@ -406,16 +406,7 @@ class ApiService {
         return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/temporal'));
     }
 
-    // Phase 15 — insights, species profiles, verification queue, weather, bulk upload
-    static getBiodiversityIndices() {
-        return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/biodiversity-indices'));
-    }
-    static getBiodiversityTrend(windowDays = 90, stepDays = 15) {
-        return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/biodiversity-trend?window_days=${windowDays}&step_days=${stepDays}`));
-    }
-    static getSpeciesIndex() {
-        return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/species-index'));
-    }
+    // Phase 15 — species profiles, verification queue, weather, bulk upload
     static getSpeciesProfile(name) {
         return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/species-profile?name=${encodeURIComponent(name)}`));
     }
