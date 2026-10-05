@@ -86,7 +86,21 @@ class ApiService {
             }
             options.headers = headers;
 
-            const response = await fetch(url, options);
+            // One retry on transient network failures (Render free tier wake-ups, flaky Wi-Fi).
+            // We never retry on an HTTP response — that'd replay POST/DELETE accidentally.
+            let response;
+            try {
+                response = await fetch(url, options);
+            } catch (netErr) {
+                const method = (options.method || "GET").toUpperCase();
+                if (method === "GET" || method === "HEAD") {
+                    await new Promise(r => setTimeout(r, 800));
+                    response = await fetch(url, options);
+                } else {
+                    throw netErr;
+                }
+            }
+
             if (!response.ok) {
                 if (response.status === 401) {
                     // Clear invalid cached session password on auth failure
@@ -97,7 +111,10 @@ class ApiService {
             if (response.status === 204) return null;
             return await response.json();
         } catch (error) {
-            console.error(`API Fetch Error [${url}]:`, error);
+            // 401s on protected endpoints are expected while logged out — not worth a console error.
+            if (!(error && error.status === 401)) {
+                console.error(`API Fetch Error [${url}]:`, error);
+            }
             throw error;
         }
     }
@@ -157,8 +174,9 @@ class ApiService {
         return this.fetchJson(window.APP_CONFIG.getEndpoint(`/observations/${id}`));
     }
 
-    static createNGOObservation(data) {
-        return this.fetchJson(window.APP_CONFIG.getEndpoint("/observations/ngo"), {
+    static createNGOObservation(data, { allowNearbyDuplicate = false } = {}) {
+        const q = allowNearbyDuplicate ? "?allow_nearby_duplicate=true" : "";
+        return this.fetchJson(window.APP_CONFIG.getEndpoint("/observations/ngo" + q), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)

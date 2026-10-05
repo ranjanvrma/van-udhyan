@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
     <!-- Custom Dashboard Styles -->
-    <link rel="stylesheet" href="css/styles.css?v=4">
+    <link rel="stylesheet" href="css/styles.css?v=5">
 
     <!-- Chart.js & Leaflet JS CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -105,7 +105,7 @@
         <!-- Global Error Banner -->
         <div id="global-error-banner" class="error-banner" style="display:none; margin: 1.5rem 2rem 0 2rem;">
             <span id="global-error-message">Error connecting to backend API</span>
-            <button onclick="App.checkBackendHealth()">Retry ↻</button>
+            <button onclick="App.retryCurrentTab()">Retry ↻</button>
         </div>
 
         <!-- 1. OVERVIEW TAB PANE -->
@@ -633,6 +633,18 @@
                 </select>
             </div>
 
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="form-watering-interval">Watering interval (days)</label>
+                    <input type="number" id="form-watering-interval" min="1" max="90" placeholder="7">
+                    <div class="form-hint" style="margin-top:0.25rem">Leave blank to use defaults (3 days when freshly planted, 7 days thereafter). Paused during monsoon.</div>
+                </div>
+                <div class="form-group">
+                    <label for="form-last-watered-on">Last watered on</label>
+                    <input type="date" id="form-last-watered-on">
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="form-notes">Notes</label>
                 <textarea id="form-notes" rows="2" placeholder="Height, health, watering or other notes..."></textarea>
@@ -895,7 +907,14 @@
 
             <div class="form-group">
                 <label for="ngo-auth-password">RSWF admin password</label>
-                <input type="password" id="ngo-auth-password" required placeholder="Enter password..." class="search-input" style="width:100%" autocomplete="current-password">
+                <div class="password-field">
+                    <input type="password" id="ngo-auth-password" required placeholder="Enter password..." class="search-input" autocomplete="current-password">
+                    <button type="button" class="password-toggle" id="ngo-auth-password-toggle"
+                            aria-label="Show password" aria-pressed="false"
+                            onclick="App.togglePasswordVisibility('ngo-auth-password', this)">
+                        <span class="password-toggle-eye" aria-hidden="true">👁</span>
+                    </button>
+                </div>
                 <div id="auth-error-msg" style="color:#ef4444;font-size:0.8rem;margin-top:0.4rem;display:none"></div>
             </div>
 
@@ -914,8 +933,8 @@
 
 <!-- Frontend JavaScript Modules -->
 <script src="js/config.js?v=6"></script>
-<script src="js/api.js?v=7"></script>
-<script src="js/app.js?v=7"></script>
+<script src="js/api.js?v=8"></script>
+<script src="js/app.js?v=8"></script>
 
 </body>
 </html>
