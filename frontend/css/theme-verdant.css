@@ -110,25 +110,29 @@ html body .brand-icon {
     font-size: 1.35rem;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
+html body .brand-header > div:last-child {
+    min-width: 0;  /* lets the flex child shrink so subtitle fits */
+    flex: 1;
+}
 html body .brand-title {
     font-family: var(--v-font);
     font-weight: 800;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     letter-spacing: -0.02em;
     color: var(--v-text);
-    line-height: 1;
+    line-height: 1.1;
+    display: block;
 }
 html body .brand-subtitle {
     display: block;
     margin-top: 0.3rem;
-    font-size: 0.64rem;
+    font-size: 0.6rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--v-text-dim);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;  /* allow wrap instead of clipping */
+    line-height: 1.3;
 }
 
 html body .nav-list {
@@ -210,10 +214,6 @@ html body .top-header {
     gap: 1rem;
     flex-wrap: wrap;
 }
-/* Weather expand panel — scrolls with the content (no sticky overlap).
-   The pill in the header stays clickable; opening while scrolled brings
-   the panel into view by scrolling to the top of main-content. */
-html body .weather-panel { z-index: 39; }
 
 html body .header-title h1 {
     font-family: var(--v-font);
@@ -851,142 +851,104 @@ html body ::selection { background: rgba(34, 197, 94, 0.35); color: #fff; }
     html body .nav-item button span { font-size: 1.1rem; }
 }
 
+
 /* ------------------------------------------------------------------
-   HEADER PILLS — live clock + weather, with expandable weather panel
+   HEADER PILLS — live clock + weather, with floating popover
 ------------------------------------------------------------------- */
 html body .header-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.95rem;
+    gap: 0.45rem;
+    padding: 0.42rem 0.85rem;
     border-radius: var(--v-r-pill);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--v-stroke);
     color: var(--v-text);
     font-family: var(--v-font);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 500;
     letter-spacing: 0.01em;
     cursor: default;
     user-select: none;
-    transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+    transition: background 150ms ease, border-color 150ms ease;
+    white-space: nowrap;
 }
 html body .header-pill .mono {
     font-family: var(--v-font-mono);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
 }
-html body .header-pill .clock-sep { color: var(--v-text-faint); }
-html body #header-clock .mono {
-    display: inline-block;
-    position: relative;
+html body .header-pill .clock-sep { color: var(--v-text-faint); margin: 0 1px; }
+html body .weather-pill-wrap { position: relative; }
+html body .weather-pill { cursor: pointer; }
+html body .weather-pill:hover { background: rgba(74, 222, 128, 0.1); border-color: var(--v-stroke-strong); }
+html body .weather-pill[aria-expanded="true"] { background: rgba(74, 222, 128, 0.12); border-color: var(--v-stroke-strong); }
+html body .weather-pill .chevron { font-size: 0.6rem; color: var(--v-text-dim); transition: transform 200ms var(--v-ease-out); }
+html body .weather-pill[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+html body .weather-pill #weather-icon { font-size: 0.95rem; line-height: 1; }
+html body .weather-pill #weather-locus { font-size: 0.7rem; color: var(--v-text-dim); }
+
+/* Floating popover anchored to the pill */
+html body .weather-pop {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    background: var(--v-ink-2);
+    border: 1px solid var(--v-stroke-strong);
+    border-radius: 14px;
+    padding: 0.9rem 1rem 1rem;
+    box-shadow: 0 20px 40px -14px rgba(0,0,0,0.65);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    pointer-events: none;
+    transition: opacity 180ms var(--v-ease-out), transform 200ms var(--v-ease-out);
+    z-index: 60;
 }
-/* Subtle flash under the seconds digit each tick */
-html body #clock-time::after {
+html body .weather-pop.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+html body .weather-pop::before {
     content: "";
     position: absolute;
-    inset: -2px -3px;
-    border-radius: 6px;
-    background: rgba(74, 222, 128, 0.08);
-    opacity: 0;
-    pointer-events: none;
-}
-html body #clock-time.tick::after {
-    animation: v-tick 1s ease-out 1;
-}
-@keyframes v-tick {
-    0% { opacity: 0.9; transform: scale(1.02); }
-    100% { opacity: 0; transform: scale(1); }
-}
-
-html body .weather-pill {
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-html body .weather-pill:hover {
-    background: rgba(74, 222, 128, 0.1);
-    border-color: var(--v-stroke-strong);
-    transform: translateY(-1px);
-}
-html body .weather-pill .chevron {
-    display: inline-block;
-    font-size: 0.65rem;
-    color: var(--v-text-dim);
-    transition: transform 240ms var(--v-ease-out);
-}
-html body .weather-pill[aria-expanded="true"] .chevron {
-    transform: rotate(180deg);
-}
-html body .weather-pill #weather-icon { font-size: 1rem; line-height: 1; }
-html body .weather-pill #weather-locus { font-size: 0.72rem; color: var(--v-text-dim); }
-
-/* Collapsible panel beneath the header */
-html body .weather-panel {
-    grid-column: 1 / -1;
-    width: 100%;
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    border-top: 0 solid transparent;
-    transition: max-height 360ms var(--v-ease-out), opacity 220ms ease, border-top-width 0ms linear 360ms;
+    top: -6px; right: 24px;
+    width: 10px; height: 10px;
     background: var(--v-ink-2);
+    border-left: 1px solid var(--v-stroke-strong);
+    border-top: 1px solid var(--v-stroke-strong);
+    transform: rotate(45deg);
 }
-html body .weather-panel.open {
-    max-height: 420px;
-    opacity: 1;
-    border-top: 1px solid var(--v-stroke);
-    transition: max-height 420ms var(--v-ease-out), opacity 260ms ease 60ms, border-top-width 0ms linear;
-}
-html body .weather-panel-inner {
-    padding: 1rem 2rem 1.25rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    align-items: flex-start;
-}
+html body .wx-head { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--v-stroke-dim); }
+html body .wx-head .ic { font-size: 2.3rem; line-height: 1; }
+html body .wx-head .temp { font-family: var(--v-font-mono); font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+html body .wx-head .sub { font-size: 0.72rem; color: var(--v-text-dim); margin-top: 3px; }
+html body .wx-label { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--v-text-dim); font-weight: 600; margin: 0.85rem 0 0.4rem; }
+
+html body .wx-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 0.5rem; background: var(--v-ink-3); border: 1px solid var(--v-stroke); border-radius: 10px; }
+html body .wx-bars .bar { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
+html body .wx-bars .track { width: 14px; height: 42px; background: rgba(255,255,255,0.04); border-radius: 3px; position: relative; overflow: hidden; }
+html body .wx-bars .fill { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, #38BDF8, #0284C7); border-radius: 3px 3px 0 0; transition: height 240ms var(--v-ease-out); }
+html body .wx-bars .d { font-size: 0.6rem; color: var(--v-text-dim); }
+html body .wx-bars .mm { font-size: 0.66rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+html body .wx-fc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+html body .wx-fc .fc { padding: 0.55rem 0.3rem; border: 1px solid var(--v-stroke); border-radius: 10px; text-align: center; background: var(--v-ink-3); }
+html body .wx-fc .fc .d { font-size: 0.64rem; color: var(--v-text-dim); }
+html body .wx-fc .fc .ic { font-size: 1.25rem; margin: 2px 0; }
+html body .wx-fc .fc .t { font-weight: 600; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+html body .wx-fc .fc .r { font-size: 0.62rem; color: #7DD3FC; margin-top: 1px; }
+
+html body .wx-footer { font-size: 0.68rem; color: var(--v-text-dim); margin-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
+
 @media (max-width: 1024px) {
-    html body .weather-panel-inner { padding: 1rem 1rem 1.25rem; }
     html body #header-clock #clock-date { display: none; }
     html body #header-clock .clock-sep { display: none; }
-    html body .header-pill { padding: 0.4rem 0.75rem; font-size: 0.74rem; }
+    html body .header-pill { padding: 0.38rem 0.7rem; font-size: 0.74rem; gap: 0.3rem; }
     html body .weather-pill #weather-locus { display: none; }
-}
-
-html body .weather-rain-bars {
-    display: flex;
-    gap: 6px;
-    align-items: flex-end;
-    padding: 0.5rem 0.6rem;
-    background: var(--v-ink-3);
-    border: 1px solid var(--v-stroke);
-    border-radius: 10px;
-}
-html body .weather-rain-bars .bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    min-width: 34px;
-}
-html body .weather-rain-bars .bar > .b {
-    width: 14px;
-    border-radius: 3px;
-    transition: height 240ms var(--v-ease-out);
-}
-html body .weather-forecast {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-html body .weather-forecast .fc {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--v-stroke);
-    border-radius: 10px;
-    min-width: 92px;
-    text-align: center;
-    background: var(--v-ink-3);
+    html body .weather-pop { width: calc(100vw - 20px); right: 50%; transform: translate(50%, -6px) scale(0.98); }
+    html body .weather-pop.open { transform: translate(50%, 0) scale(1); }
+    html body .weather-pop::before { right: 50%; transform: translateX(50%) rotate(45deg); }
 }
 
 /* Prefers-reduced-motion: strip the few transitions we do keep */

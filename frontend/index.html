@@ -16,10 +16,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
     <!-- Verdant theme — minimal / performant / cache-busted -->
-    <link rel="stylesheet" href="css/theme-verdant.css?v=p16">
+    <link rel="stylesheet" href="css/theme-verdant.css?v=p17">
 
     <!-- Legacy base styles (stripped of blurs & infinite animations) -->
-    <link rel="stylesheet" href="css/styles.css?v=p16">
+    <link rel="stylesheet" href="css/styles.css?v=p17">
 
     <!-- Chart.js & Leaflet JS CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -108,13 +108,18 @@
                     <span id="clock-time" class="mono">—</span>
                 </div>
 
-                <!-- Weather pill — click to expand with 7-day rain + 3-day forecast -->
-                <button type="button" id="header-weather" class="header-pill weather-pill" aria-expanded="false" onclick="App.toggleWeatherPill()" title="Click for the full forecast">
-                    <span id="weather-icon">🌤</span>
-                    <span id="weather-temp" class="mono">—°</span>
-                    <span id="weather-locus" class="muted">Bavdhan</span>
-                    <span class="chevron" id="weather-chevron">▾</span>
-                </button>
+                <!-- Weather pill — floating popover anchored to the pill -->
+                <div class="weather-pill-wrap">
+                    <button type="button" id="header-weather" class="header-pill weather-pill" aria-expanded="false" aria-controls="weather-pop" onclick="App.toggleWeatherPill(event)" title="Click for the full forecast">
+                        <span id="weather-icon">🌤</span>
+                        <span id="weather-temp" class="mono">—°</span>
+                        <span id="weather-locus" class="muted">Bavdhan</span>
+                        <span class="chevron" id="weather-chevron">▾</span>
+                    </button>
+                    <div id="weather-pop" class="weather-pop" role="dialog" aria-hidden="true">
+                        <div id="weather-pop-body"><div class="muted" style="padding:0.5rem">Loading weather…</div></div>
+                    </div>
+                </div>
 
                 <button id="ngo-auth-status-btn" class="auth-btn" onclick="App.toggleAuthSession()" title="RSWF staff can unlock editing with the admin password">
                     🔓 View only · Unlock editing
@@ -124,13 +129,6 @@
                 </div>
             </div>
         </header>
-
-        <!-- Expandable weather panel — slides open under the top header -->
-        <div id="weather-panel" class="weather-panel" aria-hidden="true">
-            <div class="weather-panel-inner" id="weather-panel-body">
-                <div class="muted" style="padding:0.75rem">Loading weather…</div>
-            </div>
-        </div>
 
         <!-- Global Error Banner -->
         <div id="global-error-banner" class="error-banner" style="display:none; margin: 1.5rem 2rem 0 2rem;">
@@ -1017,9 +1015,9 @@
 <script src="js/config.local.js" onerror="void 0"></script>
 
 <!-- Frontend JavaScript Modules -->
-<script src="js/config.js?v=p16"></script>
-<script src="js/api.js?v=p16"></script>
-<script src="js/app.js?v=p16"></script>
+<script src="js/config.js?v=p17"></script>
+<script src="js/api.js?v=p17"></script>
+<script src="js/app.js?v=p17"></script>
 
 </body>
 </html>

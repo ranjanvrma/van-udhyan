@@ -2235,7 +2235,7 @@ const App = {
        profile, bulk upload, 3D terrain
        ================================================================ */
 
-    // --- Live header clock (updates every second) ---
+    // --- Live header clock (text-only tick, zero animation overhead) ---
     initHeaderClock() {
         const dateEl = document.getElementById("clock-date");
         const timeEl = document.getElementById("clock-time");
@@ -2246,14 +2246,11 @@ const App = {
             const now = new Date();
             dateEl.textContent = fmtDate.format(now);
             timeEl.textContent = fmtTime.format(now);
-            // retrigger the subtle flash (CSS animation re-fires on class toggle)
-            timeEl.classList.remove("tick");
-            // force reflow so the animation restarts
-            void timeEl.offsetWidth;
-            timeEl.classList.add("tick");
         };
         tick();
-        setInterval(tick, 1000);
+        // align to the next whole second so the digit changes aren't jittery
+        const msToNextSec = 1000 - (Date.now() % 1000);
+        setTimeout(() => { tick(); setInterval(tick, 1000); }, msToNextSec);
     },
 
     // --- Weather pill (direct Open-Meteo fetch, no backend proxy) ---
@@ -2294,13 +2291,13 @@ const App = {
     _renderWeatherPill() {
         const icon = document.getElementById("weather-icon");
         const temp = document.getElementById("weather-temp");
-        const body = document.getElementById("weather-panel-body");
+        const body = document.getElementById("weather-pop-body");
         if (!icon || !temp || !body) return;
         const w = this._weather;
         if (!w) {
             icon.textContent = "🌐";
             temp.textContent = "—°";
-            body.innerHTML = `<div class="muted" style="padding:0.75rem">Weather feed unavailable (${this._weatherErr || "offline"}). The forecast will try again automatically.</div>`;
+            body.innerHTML = `<div class="muted" style="padding:0.5rem 0">Weather feed unavailable. Retrying automatically.</div>`;
             return;
         }
         const cur = w.current || {};
@@ -2309,69 +2306,81 @@ const App = {
         const tmax = w.daily?.temperature_2m_max || [];
         const tmin = w.daily?.temperature_2m_min || [];
         const codes = w.daily?.weather_code || [];
-        const TODAY = 7; // past_days=7, so index 7 is today
+        const TODAY = 7;
         const nowLabel = this._wmoLabel(cur.weather_code);
         icon.textContent = nowLabel.icon;
         temp.textContent = `${Math.round(cur.temperature_2m ?? 0)}°`;
 
-        const past = [];
-        const future = [];
+        const past = [], future = [];
         for (let i = 0; i < dLabels.length; i++) {
-            const row = {
-                date: dLabels[i],
-                rain: Number(rain[i] || 0),
-                tmax: tmax[i], tmin: tmin[i],
-                label: this._wmoLabel(codes[i])
-            };
-            if (i < TODAY) past.push(row);
-            else future.push(row);
+            const row = { date: dLabels[i], rain: Number(rain[i] || 0), tmax: tmax[i], tmin: tmin[i], label: this._wmoLabel(codes[i]) };
+            (i < TODAY ? past : future).push(row);
         }
+        // Scale: 0 bars = 0%, cap at 20mm = 100%
         const bars = past.map(d => {
             const mm = Math.max(0, d.rain || 0);
-            const h = Math.min(60, mm * 5);
-            const dl = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" });
-            return `<div class="bar"><div style="height:60px;display:flex;align-items:flex-end"><div class="b" style="height:${h}px;background:${mm > 0 ? '#38BDF8' : 'rgba(255,255,255,0.08)'}" title="${mm.toFixed(1)} mm"></div></div><div class="muted" style="font-size:0.68rem">${dl}</div><div style="font-size:0.7rem;font-weight:600">${mm.toFixed(0)}</div></div>`;
+            const pct = Math.min(100, (mm / 20) * 100);
+            const dl = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" }).slice(0, 3);
+            return `<div class="bar"><div class="track"><div class="fill" style="height:${pct}%"></div></div><div class="d">${dl}</div><div class="mm">${mm.toFixed(0)}</div></div>`;
         }).join("");
-        const fc = future.map(d => `<div class="fc">
-            <div class="muted" style="font-size:0.7rem">${new Date(d.date + 'T00:00:00').toLocaleDateString(undefined,{weekday:'short'})}</div>
-            <div style="font-size:1.4rem">${d.label.icon}</div>
-            <div style="font-weight:600;font-size:0.8rem">${Math.round(d.tmax)}°/${Math.round(d.tmin)}°</div>
-            <div class="muted" style="font-size:0.7rem">${(d.rain || 0).toFixed(0)} mm</div>
+        const fc = future.slice(0, 3).map(d => `<div class="fc">
+            <div class="d">${new Date(d.date + 'T00:00:00').toLocaleDateString(undefined,{weekday:'short'})}</div>
+            <div class="ic">${d.label.icon}</div>
+            <div class="t">${Math.round(d.tmax)}°/${Math.round(d.tmin)}°</div>
+            <div class="r">${(d.rain || 0).toFixed(0)}mm</div>
         </div>`).join("");
         const rain24 = past.length ? past[past.length - 1].rain : 0;
         const rain7 = past.reduce((s, p) => s + (p.rain || 0), 0);
         const autoPause = rain24 >= 5;
+
         body.innerHTML = `
-            <div style="display:flex;align-items:center;gap:0.75rem;min-width:200px">
-                <div style="font-size:2.4rem">${nowLabel.icon}</div>
+            <div class="wx-head">
+                <div class="ic">${nowLabel.icon}</div>
                 <div>
-                    <div class="mono" style="font-size:1.6rem;font-weight:700">${Math.round(cur.temperature_2m)}°C</div>
-                    <div class="muted" style="font-size:0.78rem">${nowLabel.name} · ${Math.round(cur.relative_humidity_2m)}% RH · wind ${Math.round(cur.wind_speed_10m)} km/h</div>
+                    <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
+                    <div class="sub">${nowLabel.name} · ${Math.round(cur.relative_humidity_2m)}% RH · ${Math.round(cur.wind_speed_10m)} km/h</div>
                 </div>
             </div>
-            <div>
-                <div class="muted" style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem">Rain last 7 days (mm)</div>
-                <div class="weather-rain-bars">${bars}</div>
-                <div class="muted" style="font-size:0.72rem;margin-top:0.35rem">${rain7.toFixed(1)} mm over the week · ${rain24.toFixed(1)} mm in the last 24h</div>
-            </div>
-            <div>
-                <div class="muted" style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem">Next 3 days</div>
-                <div class="weather-forecast">${fc}</div>
-            </div>
-            ${autoPause ? `<div class="note-card" style="flex:1 1 100%">💧 <strong>Auto-pause suggested:</strong> ${rain24.toFixed(1)} mm fell in the last 24 hours — overdue plants likely got their water from the sky.</div>` : ''}
+            <div class="wx-label">Rain · last 7 days (mm)</div>
+            <div class="wx-bars">${bars}</div>
+            <div class="wx-label">Next 3 days</div>
+            <div class="wx-fc">${fc}</div>
+            <div class="wx-footer"><span>Week: <b>${rain7.toFixed(0)} mm</b></span><span>Last 24h: <b>${rain24.toFixed(1)} mm</b></span></div>
+            ${autoPause ? `<div style="margin-top:0.6rem;padding:0.5rem 0.65rem;border:1px solid rgba(56,189,248,0.3);background:rgba(56,189,248,0.08);border-radius:8px;font-size:0.74rem;color:#BAE6FD">💧 Auto-pause suggested — ${rain24.toFixed(1)} mm in the last 24h.</div>` : ''}
         `;
     },
 
-    toggleWeatherPill() {
+    toggleWeatherPill(ev) {
+        if (ev) ev.stopPropagation();
         const btn = document.getElementById("header-weather");
-        const panel = document.getElementById("weather-panel");
-        if (!btn || !panel) return;
-        const open = panel.classList.toggle("open");
+        const pop = document.getElementById("weather-pop");
+        if (!btn || !pop) return;
+        const open = pop.classList.toggle("open");
         btn.setAttribute("aria-expanded", open ? "true" : "false");
-        panel.setAttribute("aria-hidden", open ? "false" : "true");
-        if (open) {
-            const main = document.querySelector(".main-content");
-            if (main && main.scrollTop > 10) main.scrollTo({ top: 0, behavior: "smooth" });
+        pop.setAttribute("aria-hidden", open ? "false" : "true");
+        if (open && !this._weatherOutsideBound) {
+            this._weatherOutsideBound = true;
+            document.addEventListener("click", (e) => {
+                const p = document.getElementById("weather-pop");
+                const b = document.getElementById("header-weather");
+                if (!p || !b) return;
+                if (p.classList.contains("open") && !p.contains(e.target) && !b.contains(e.target)) {
+                    p.classList.remove("open");
+                    b.setAttribute("aria-expanded", "false");
+                    p.setAttribute("aria-hidden", "true");
+                }
+            });
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    const p = document.getElementById("weather-pop");
+                    const b = document.getElementById("header-weather");
+                    if (p && p.classList.contains("open")) {
+                        p.classList.remove("open");
+                        b.setAttribute("aria-expanded", "false");
+                        p.setAttribute("aria-hidden", "true");
+                    }
+                }
+            });
         }
     },
 
