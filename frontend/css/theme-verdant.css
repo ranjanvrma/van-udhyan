@@ -210,6 +210,10 @@ html body .top-header {
     gap: 1rem;
     flex-wrap: wrap;
 }
+/* Weather expand panel — scrolls with the content (no sticky overlap).
+   The pill in the header stays clickable; opening while scrolled brings
+   the panel into view by scrolling to the top of main-content. */
+html body .weather-panel { z-index: 39; }
 
 html body .header-title h1 {
     font-family: var(--v-font);
@@ -847,7 +851,145 @@ html body ::selection { background: rgba(34, 197, 94, 0.35); color: #fff; }
     html body .nav-item button span { font-size: 1.1rem; }
 }
 
+/* ------------------------------------------------------------------
+   HEADER PILLS — live clock + weather, with expandable weather panel
+------------------------------------------------------------------- */
+html body .header-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: var(--v-r-pill);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--v-stroke);
+    color: var(--v-text);
+    font-family: var(--v-font);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    cursor: default;
+    user-select: none;
+    transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+html body .header-pill .mono {
+    font-family: var(--v-font-mono);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+html body .header-pill .clock-sep { color: var(--v-text-faint); }
+html body #header-clock .mono {
+    display: inline-block;
+    position: relative;
+}
+/* Subtle flash under the seconds digit each tick */
+html body #clock-time::after {
+    content: "";
+    position: absolute;
+    inset: -2px -3px;
+    border-radius: 6px;
+    background: rgba(74, 222, 128, 0.08);
+    opacity: 0;
+    pointer-events: none;
+}
+html body #clock-time.tick::after {
+    animation: v-tick 1s ease-out 1;
+}
+@keyframes v-tick {
+    0% { opacity: 0.9; transform: scale(1.02); }
+    100% { opacity: 0; transform: scale(1); }
+}
+
+html body .weather-pill {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+html body .weather-pill:hover {
+    background: rgba(74, 222, 128, 0.1);
+    border-color: var(--v-stroke-strong);
+    transform: translateY(-1px);
+}
+html body .weather-pill .chevron {
+    display: inline-block;
+    font-size: 0.65rem;
+    color: var(--v-text-dim);
+    transition: transform 240ms var(--v-ease-out);
+}
+html body .weather-pill[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+}
+html body .weather-pill #weather-icon { font-size: 1rem; line-height: 1; }
+html body .weather-pill #weather-locus { font-size: 0.72rem; color: var(--v-text-dim); }
+
+/* Collapsible panel beneath the header */
+html body .weather-panel {
+    grid-column: 1 / -1;
+    width: 100%;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    border-top: 0 solid transparent;
+    transition: max-height 360ms var(--v-ease-out), opacity 220ms ease, border-top-width 0ms linear 360ms;
+    background: var(--v-ink-2);
+}
+html body .weather-panel.open {
+    max-height: 420px;
+    opacity: 1;
+    border-top: 1px solid var(--v-stroke);
+    transition: max-height 420ms var(--v-ease-out), opacity 260ms ease 60ms, border-top-width 0ms linear;
+}
+html body .weather-panel-inner {
+    padding: 1rem 2rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: flex-start;
+}
+@media (max-width: 1024px) {
+    html body .weather-panel-inner { padding: 1rem 1rem 1.25rem; }
+    html body #header-clock #clock-date { display: none; }
+    html body #header-clock .clock-sep { display: none; }
+    html body .header-pill { padding: 0.4rem 0.75rem; font-size: 0.74rem; }
+    html body .weather-pill #weather-locus { display: none; }
+}
+
+html body .weather-rain-bars {
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    padding: 0.5rem 0.6rem;
+    background: var(--v-ink-3);
+    border: 1px solid var(--v-stroke);
+    border-radius: 10px;
+}
+html body .weather-rain-bars .bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 34px;
+}
+html body .weather-rain-bars .bar > .b {
+    width: 14px;
+    border-radius: 3px;
+    transition: height 240ms var(--v-ease-out);
+}
+html body .weather-forecast {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+html body .weather-forecast .fc {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--v-stroke);
+    border-radius: 10px;
+    min-width: 92px;
+    text-align: center;
+    background: var(--v-ink-3);
+}
+
 /* Prefers-reduced-motion: strip the few transitions we do keep */
 @media (prefers-reduced-motion: reduce) {
-    html body * { transition: none !important; }
+    html body * { transition: none !important; animation: none !important; }
 }

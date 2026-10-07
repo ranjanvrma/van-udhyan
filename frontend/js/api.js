@@ -413,9 +413,6 @@ class ApiService {
     static getVerificationQueue(limit = 50) {
         return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/verification-queue?limit=${limit}`));
     }
-    static getWeather() {
-        return this.fetchJson(window.APP_CONFIG.getEndpoint('/analytics/weather'));
-    }
     static async bulkUploadPhotos(files, { allowNearbyDuplicate = false } = {}) {
         const fd = new FormData();
         for (const f of files) fd.append('files', f);

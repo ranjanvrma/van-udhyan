@@ -10,7 +10,6 @@ from app.services.insights_service import (
     species_profile,
     verification_queue,
 )
-from app.services.weather_service import get_watering_weather
 
 router = APIRouter(prefix="/analytics", tags=["Advanced Analytics & Conservation Insights"])
 
@@ -23,11 +22,6 @@ def get_species_profile(name: str = Query(..., min_length=2, description="Scient
 def get_verification_queue(limit: int = Query(50, ge=1, le=200)):
     """NGO observations awaiting human review (public read; verify POST still requires admin)."""
     return verification_queue(limit=limit)
-
-@router.get("/weather")
-def get_weather():
-    """Open-Meteo weather snapshot for Bavdhan — current + past-7d rainfall + 3-day forecast."""
-    return get_watering_weather()
 
 @router.get("/biodiversity")
 def get_biodiversity_analytics():

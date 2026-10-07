@@ -37,6 +37,8 @@ const App = {
         this.setupModalDismissal();
         this.setupPhotoGpsListeners();
         this.updateAuthStatusUI();
+        this.initHeaderClock();
+        this.initWeatherPill();
         await this.checkBackendHealth();
 
         // Open the tab named in the URL (e.g. #map), otherwise the overview
@@ -475,7 +477,6 @@ const App = {
                     await this.loadZones();
                     break;
                 case "watering":
-                    await this.loadWeather();
                     await this.loadWateringQueue();
                     break;
                 case "verify":
@@ -2234,54 +2235,143 @@ const App = {
        profile, bulk upload, 3D terrain
        ================================================================ */
 
-    // --- Weather widget (lives inside the Watering tab) ---
-    async loadWeather() {
-        const body = document.getElementById("weather-widget-body");
-        const stamp = document.getElementById("weather-updated");
-        if (!body) return;
+    // --- Live header clock (updates every second) ---
+    initHeaderClock() {
+        const dateEl = document.getElementById("clock-date");
+        const timeEl = document.getElementById("clock-time");
+        if (!dateEl || !timeEl) return;
+        const fmtDate = new Intl.DateTimeFormat("en-IN", { weekday: "short", month: "short", day: "numeric", timeZone: "Asia/Kolkata" });
+        const fmtTime = new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: "Asia/Kolkata" });
+        const tick = () => {
+            const now = new Date();
+            dateEl.textContent = fmtDate.format(now);
+            timeEl.textContent = fmtTime.format(now);
+            // retrigger the subtle flash (CSS animation re-fires on class toggle)
+            timeEl.classList.remove("tick");
+            // force reflow so the animation restarts
+            void timeEl.offsetWidth;
+            timeEl.classList.add("tick");
+        };
+        tick();
+        setInterval(tick, 1000);
+    },
+
+    // --- Weather pill (direct Open-Meteo fetch, no backend proxy) ---
+    _wmoLabel(code) {
+        const T = {
+            0:["Clear","☀️"],1:["Mostly clear","🌤"],2:["Partly cloudy","⛅"],3:["Overcast","☁️"],
+            45:["Fog","🌫"],48:["Rime fog","🌫"],
+            51:["Light drizzle","🌦"],53:["Drizzle","🌦"],55:["Dense drizzle","🌧"],
+            61:["Light rain","🌦"],63:["Rain","🌧"],65:["Heavy rain","🌧"],
+            71:["Light snow","🌨"],73:["Snow","🌨"],75:["Heavy snow","❄️"],
+            80:["Light showers","🌦"],81:["Showers","🌧"],82:["Violent showers","⛈"],
+            95:["Thunderstorm","⛈"],96:["T-storm w/ hail","⛈"],99:["T-storm w/ heavy hail","⛈"]
+        };
+        const t = T[Number(code)] || ["", "🌡"];
+        return { name: t[0], icon: t[1] };
+    },
+
+    async initWeatherPill() {
         try {
-            const w = await ApiService.getWeather();
-            if (!w.available) {
-                body.innerHTML = `<span class="muted">Weather feed unavailable right now.</span>`;
-                return;
-            }
-            const cur = w.current || {};
-            const bars = (w.past_7_days || []).map(d => {
-                const mm = Math.max(0, Number(d.rain_mm) || 0);
-                const h = Math.min(60, mm * 4);  // 1mm = 4px, cap 60
-                const dateLabel = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" });
-                return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:36px">
-                    <div style="height:60px;display:flex;align-items:flex-end"><div title="${mm} mm" style="width:16px;height:${h}px;border-radius:3px;background:${mm > 0 ? '#38BDF8' : 'rgba(255,255,255,0.08)'}"></div></div>
-                    <div class="muted" style="font-size:0.68rem">${dateLabel}</div>
-                    <div style="font-size:0.7rem;font-weight:600">${mm}</div>
-                </div>`;
-            }).join("");
-            const fc = (w.forecast || []).map(d => `<div style="padding:0.5rem 0.75rem;border:1px solid var(--v-stroke);border-radius:10px;min-width:92px;text-align:center">
-                <div style="font-size:0.7rem" class="muted">${new Date(d.date + 'T00:00:00').toLocaleDateString(undefined,{weekday:'short'})}</div>
-                <div style="font-size:1.4rem">${d.label ? d.label.icon : '🌤'}</div>
-                <div style="font-weight:600;font-size:0.8rem">${d.t_max ?? '—'}°/${d.t_min ?? '—'}°</div>
-                <div class="muted" style="font-size:0.7rem">${d.rain_mm} mm</div>
-            </div>`).join("");
-            body.innerHTML = `
-                <div style="display:flex;flex-wrap:wrap;gap:1.25rem;align-items:center">
-                    <div style="display:flex;align-items:center;gap:0.75rem">
-                        <div style="font-size:2.4rem">${cur.label ? cur.label.icon : '🌤'}</div>
-                        <div>
-                            <div style="font-family:var(--v-font-mono);font-size:1.6rem;font-weight:700">${cur.temp_c ?? '—'}°C</div>
-                            <div class="muted" style="font-size:0.78rem">${cur.label ? cur.label.name : ''} · ${cur.humidity_pct ?? '—'}% RH · wind ${cur.wind_kph ?? '—'} km/h</div>
-                        </div>
-                    </div>
-                    <div style="flex:1;min-width:260px">
-                        <div class="muted" style="font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem">Rain last 7 days (mm)</div>
-                        <div style="display:flex;gap:6px;align-items:flex-end">${bars}</div>
-                    </div>
-                </div>
-                <div style="display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap">${fc}</div>
-                ${w.auto_pause ? `<div class="note-card" style="margin-top:1rem">💧 <strong>Auto-pause suggested:</strong> ${w.rain_24h_mm} mm fell in the last 24 hours. Overdue plants probably got their water from the sky.</div>` : ''}
-            `;
-            if (stamp && w.updated_at) stamp.textContent = `updated ${new Date(w.updated_at).toLocaleString()}`;
+            const url = "https://api.open-meteo.com/v1/forecast?latitude=18.5195&longitude=73.7802"
+                      + "&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m"
+                      + "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code"
+                      + "&past_days=7&forecast_days=4&timezone=Asia%2FKolkata";
+            const res = await fetch(url, { cache: "no-store" });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            this._weather = await res.json();
         } catch (e) {
-            body.innerHTML = `<span class="muted">Could not load weather (${e.message}).</span>`;
+            this._weather = null;
+            this._weatherErr = e.message;
+        }
+        this._renderWeatherPill();
+        // Refresh every 20 minutes
+        if (!this._weatherTimer) {
+            this._weatherTimer = setInterval(() => this.initWeatherPill(), 20 * 60 * 1000);
+        }
+    },
+
+    _renderWeatherPill() {
+        const icon = document.getElementById("weather-icon");
+        const temp = document.getElementById("weather-temp");
+        const body = document.getElementById("weather-panel-body");
+        if (!icon || !temp || !body) return;
+        const w = this._weather;
+        if (!w) {
+            icon.textContent = "🌐";
+            temp.textContent = "—°";
+            body.innerHTML = `<div class="muted" style="padding:0.75rem">Weather feed unavailable (${this._weatherErr || "offline"}). The forecast will try again automatically.</div>`;
+            return;
+        }
+        const cur = w.current || {};
+        const dLabels = w.daily?.time || [];
+        const rain = w.daily?.precipitation_sum || [];
+        const tmax = w.daily?.temperature_2m_max || [];
+        const tmin = w.daily?.temperature_2m_min || [];
+        const codes = w.daily?.weather_code || [];
+        const TODAY = 7; // past_days=7, so index 7 is today
+        const nowLabel = this._wmoLabel(cur.weather_code);
+        icon.textContent = nowLabel.icon;
+        temp.textContent = `${Math.round(cur.temperature_2m ?? 0)}°`;
+
+        const past = [];
+        const future = [];
+        for (let i = 0; i < dLabels.length; i++) {
+            const row = {
+                date: dLabels[i],
+                rain: Number(rain[i] || 0),
+                tmax: tmax[i], tmin: tmin[i],
+                label: this._wmoLabel(codes[i])
+            };
+            if (i < TODAY) past.push(row);
+            else future.push(row);
+        }
+        const bars = past.map(d => {
+            const mm = Math.max(0, d.rain || 0);
+            const h = Math.min(60, mm * 5);
+            const dl = new Date(d.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" });
+            return `<div class="bar"><div style="height:60px;display:flex;align-items:flex-end"><div class="b" style="height:${h}px;background:${mm > 0 ? '#38BDF8' : 'rgba(255,255,255,0.08)'}" title="${mm.toFixed(1)} mm"></div></div><div class="muted" style="font-size:0.68rem">${dl}</div><div style="font-size:0.7rem;font-weight:600">${mm.toFixed(0)}</div></div>`;
+        }).join("");
+        const fc = future.map(d => `<div class="fc">
+            <div class="muted" style="font-size:0.7rem">${new Date(d.date + 'T00:00:00').toLocaleDateString(undefined,{weekday:'short'})}</div>
+            <div style="font-size:1.4rem">${d.label.icon}</div>
+            <div style="font-weight:600;font-size:0.8rem">${Math.round(d.tmax)}°/${Math.round(d.tmin)}°</div>
+            <div class="muted" style="font-size:0.7rem">${(d.rain || 0).toFixed(0)} mm</div>
+        </div>`).join("");
+        const rain24 = past.length ? past[past.length - 1].rain : 0;
+        const rain7 = past.reduce((s, p) => s + (p.rain || 0), 0);
+        const autoPause = rain24 >= 5;
+        body.innerHTML = `
+            <div style="display:flex;align-items:center;gap:0.75rem;min-width:200px">
+                <div style="font-size:2.4rem">${nowLabel.icon}</div>
+                <div>
+                    <div class="mono" style="font-size:1.6rem;font-weight:700">${Math.round(cur.temperature_2m)}°C</div>
+                    <div class="muted" style="font-size:0.78rem">${nowLabel.name} · ${Math.round(cur.relative_humidity_2m)}% RH · wind ${Math.round(cur.wind_speed_10m)} km/h</div>
+                </div>
+            </div>
+            <div>
+                <div class="muted" style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem">Rain last 7 days (mm)</div>
+                <div class="weather-rain-bars">${bars}</div>
+                <div class="muted" style="font-size:0.72rem;margin-top:0.35rem">${rain7.toFixed(1)} mm over the week · ${rain24.toFixed(1)} mm in the last 24h</div>
+            </div>
+            <div>
+                <div class="muted" style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem">Next 3 days</div>
+                <div class="weather-forecast">${fc}</div>
+            </div>
+            ${autoPause ? `<div class="note-card" style="flex:1 1 100%">💧 <strong>Auto-pause suggested:</strong> ${rain24.toFixed(1)} mm fell in the last 24 hours — overdue plants likely got their water from the sky.</div>` : ''}
+        `;
+    },
+
+    toggleWeatherPill() {
+        const btn = document.getElementById("header-weather");
+        const panel = document.getElementById("weather-panel");
+        if (!btn || !panel) return;
+        const open = panel.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        panel.setAttribute("aria-hidden", open ? "false" : "true");
+        if (open) {
+            const main = document.querySelector(".main-content");
+            if (main && main.scrollTop > 10) main.scrollTo({ top: 0, behavior: "smooth" });
         }
     },
 
