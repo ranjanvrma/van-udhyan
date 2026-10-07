@@ -951,6 +951,74 @@ html body .wx-footer { font-size: 0.68rem; color: var(--v-text-dim); margin-top:
     html body .weather-pop::before { right: 50%; transform: translateX(50%) rotate(45deg); }
 }
 
+/* ------------------------------------------------------------------
+   PLAN COMPLIANCE GRID (20x20)
+------------------------------------------------------------------- */
+html body .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid var(--v-stroke);
+    border-radius: 10px;
+    background: var(--v-ink-3);
+    aspect-ratio: 1 / 1;
+    max-width: 760px;
+    margin: 0 auto;
+}
+html body .plan-cell {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: default;
+    transition: outline-color 120ms ease, transform 120ms ease;
+    outline: 1px solid rgba(255,255,255,0.05);
+    outline-offset: -1px;
+}
+html body .plan-cell:hover {
+    outline-color: var(--v-leaf-bright);
+    z-index: 2;
+    transform: scale(1.15);
+}
+html body .plan-cell .num {
+    position: absolute;
+    top: 1px; left: 2px;
+    font-family: var(--v-font-mono);
+    font-size: 0.5rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1;
+}
+html body .plan-cell .lbl {
+    font-family: var(--v-font-mono);
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    text-align: center;
+    padding: 0 2px;
+}
+html body .legend-sw {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin: 0 4px;
+}
+html body .legend-sw.correct { background: #22C55E; }
+html body .legend-sw.wrong { background: #F97316; }
+html body .legend-sw.missing { background: rgba(255,255,255,0.1); }
+html body .legend-sw.void { background: #64748B; }
+@media (max-width: 768px) {
+    html body .plan-grid { max-width: 100%; }
+    html body .plan-cell .lbl { font-size: 0.55rem; }
+    html body .plan-cell .num { font-size: 0.42rem; }
+}
+
 /* Prefers-reduced-motion: strip the few transitions we do keep */
 @media (prefers-reduced-motion: reduce) {
     html body * { transition: none !important; animation: none !important; }

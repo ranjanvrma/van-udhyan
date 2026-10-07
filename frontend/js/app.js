@@ -482,6 +482,9 @@ const App = {
                 case "verify":
                     await this.loadVerificationQueue();
                     break;
+                case "compliance":
+                    await this.loadCompliance();
+                    break;
                 case "management":
                     await this.loadPlantedPlants();
                     break;
@@ -2348,6 +2351,169 @@ const App = {
             <div class="wx-footer"><span>Week: <b>${rain7.toFixed(0)} mm</b></span><span>Last 24h: <b>${rain24.toFixed(1)} mm</b></span></div>
             ${autoPause ? `<div style="margin-top:0.6rem;padding:0.5rem 0.65rem;border:1px solid rgba(56,189,248,0.3);background:rgba(56,189,248,0.08);border-radius:8px;font-size:0.74rem;color:#BAE6FD">💧 Auto-pause suggested — ${rain24.toFixed(1)} mm in the last 24h.</div>` : ''}
         `;
+    },
+
+    /* ================================================================
+       Plan Compliance (Sacred Grove / Devrai master grid audit)
+       ================================================================ */
+    async loadCompliance() {
+        const kpi = document.getElementById("compliance-kpis");
+        const grid = document.getElementById("compliance-grid");
+        const mBody = document.getElementById("compliance-mismatch-body");
+        const sBody = document.getElementById("compliance-spacing-body");
+        const mCount = document.getElementById("compliance-mismatch-count");
+        const sCount = document.getElementById("compliance-spacing-count");
+        if (!kpi || !grid) return;
+
+        try {
+            const [audit, hmap, spacing] = await Promise.all([
+                ApiService.getComplianceAudit(),
+                ApiService.getComplianceHeatmap(),
+                ApiService.getComplianceSpacingWarnings().catch(() => ({ pairs: [], min_distance_m: 6 })),
+            ]);
+            this._compliance = { audit, heatmap: hmap, spacing };
+            const s = audit.summary || {};
+            kpi.innerHTML = `
+                <div class="kpi-card"><div class="kpi-label">Planted total</div><div class="kpi-value">${s.total || 0}</div><div class="kpi-subtext">with usable GPS</div></div>
+                <div class="kpi-card"><div class="kpi-label">Correct</div><div class="kpi-value">${s.correct || 0}</div><div class="kpi-subtext">right species, right cell</div></div>
+                <div class="kpi-card attention"><div class="kpi-label">Wrong / misplaced</div><div class="kpi-value">${(s.wrong_species || 0) + (s.misplaced_species || 0)}</div><div class="kpi-subtext">need review</div></div>
+                <div class="kpi-card"><div class="kpi-label">Outside plot</div><div class="kpi-value">${s.outside_plot || 0}</div><div class="kpi-subtext">GPS not inside the 1-acre grid</div></div>
+            `;
+
+            // Grid heatmap (SVG for crispness and tooltips)
+            grid.innerHTML = this._renderPlanGrid(hmap.cells || []);
+
+            // Mismatch table
+            const bad = (audit.rows || []).filter(r => r.status === "wrong_species" || r.status === "misplaced_species");
+            mCount.textContent = `${bad.length} issue${bad.length === 1 ? "" : "s"}`;
+            if (!bad.length) {
+                mBody.innerHTML = `<tr class="empty-row"><td colspan="6">No mismatches — every planted record matches the plan.</td></tr>`;
+            } else {
+                mBody.innerHTML = bad.map(r => {
+                    const statusPill = r.status === "wrong_species"
+                        ? `<span class="pill pill-orange">wrong species</span>`
+                        : `<span class="pill pill-blue">misplaced</span>`;
+                    const should = r.rightful_cells_for_species && r.rightful_cells_for_species.length
+                        ? r.rightful_cells_for_species.join(", ")
+                        : `<span class="faint">not in plan</span>`;
+                    return `<tr>
+                        <td>${statusPill}</td>
+                        <td><b>${this.esc(r.label || "")}</b></td>
+                        <td><i>${this.esc(r.scientific_name || "—")}</i></td>
+                        <td><i>${this.esc(r.prescribed_species || "—")}</i>${r.prescribed_marathi ? ` <span class="muted">(${this.esc(r.prescribed_marathi)})</span>` : ""}</td>
+                        <td class="mono">${r.cell ?? "—"}</td>
+                        <td class="mono">${should}</td>
+                    </tr>`;
+                }).join("");
+            }
+
+            // Spacing warnings
+            const pairs = spacing.pairs || [];
+            sCount.textContent = `${pairs.length} pair${pairs.length === 1 ? "" : "s"} too close`;
+            if (!pairs.length) {
+                sBody.innerHTML = `<div class="muted" style="padding:0.5rem">No large-canopy pairs are closer than ${spacing.min_distance_m} m.</div>`;
+            } else {
+                sBody.innerHTML = `<div style="display:flex;flex-direction:column;gap:0.5rem">${
+                    pairs.slice(0, 50).map(p => `
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;padding:0.6rem 0.8rem;border:1px solid var(--v-stroke);border-radius:10px;background:var(--v-ink-3)">
+                            <div><b>${this.esc(p.a.label)}</b> <i class="muted">${this.esc(p.a.scientific_name || "—")}</i> ↔ <b>${this.esc(p.b.label)}</b> <i class="muted">${this.esc(p.b.scientific_name || "—")}</i></div>
+                            <div class="mono" style="color:#F97316;font-weight:700">${p.distance_m} m</div>
+                        </div>
+                    `).join("")
+                }</div>`;
+            }
+        } catch (e) {
+            kpi.innerHTML = `<div class="kpi-card"><div class="kpi-label">Error</div><div class="kpi-subtext">${this.esc(e.message)}</div></div>`;
+        }
+    },
+
+    _renderPlanGrid(cells) {
+        if (!cells || !cells.length) return `<div class="muted">No grid data.</div>`;
+        // 20x20. We render as a CSS grid with 400 cells, colour by status.
+        const legend = (st) => ({
+            correct: "#22C55E",
+            wrong: "#F97316",
+            missing: "rgba(255,255,255,0.06)",
+            non_plantable: "#64748B",
+            void: "rgba(255,255,255,0.02)",
+        }[st] || "rgba(255,255,255,0.04)");
+        return cells.map(c => {
+            const label = c.prescribed || (c.note ? c.note : "·");
+            const title = `Cell ${c.cell} · ${c.prescribed_type || ""}
+Should be: ${c.prescribed || c.note || "—"}
+${c.occupants && c.occupants.length ? "Here: " + c.occupants.map(o => (o.scientific_name || "unknown") + " [" + o.label + "]").join(", ") : "No plant recorded"}
+Status: ${c.status}`;
+            const txt = c.prescribed ? (c.prescribed.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()) : (c.note ? c.note[0] : "");
+            return `<div class="plan-cell" data-cell="${c.cell}" data-status="${c.status}" style="background:${legend(c.status)}" title="${title.replace(/"/g, '&quot;')}"><span class="num">${c.cell}</span><span class="lbl">${txt}</span></div>`;
+        }).join("");
+    },
+
+    exportComplianceCsv() {
+        const audit = this._compliance?.audit;
+        if (!audit) { this.notify("Open the Plan Compliance tab first to load data.", "error"); return; }
+        const rows = audit.rows || [];
+        const header = ["id","source","label","scientific_name","cell","prescribed_species","status","rightful_cells","latitude","longitude","zone_code"];
+        const csv = [header.join(",")].concat(rows.map(r => [
+            r.id, r.source, r.label,
+            `"${(r.scientific_name || "").replace(/"/g, '""')}"`,
+            r.cell ?? "",
+            `"${(r.prescribed_species || "").replace(/"/g, '""')}"`,
+            r.status,
+            (r.rightful_cells_for_species || []).join(";"),
+            r.latitude, r.longitude, r.zone_code || ""
+        ].join(","))).join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `van-udyan-compliance-${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    },
+
+    async openCalibrationModal() {
+        try {
+            const cal = await ApiService.getComplianceCalibration();
+            const c = cal.corners || {};
+            document.getElementById("cal-nw-lat").value = c.nw?.lat ?? "";
+            document.getElementById("cal-nw-lon").value = c.nw?.lon ?? "";
+            document.getElementById("cal-ne-lat").value = c.ne?.lat ?? "";
+            document.getElementById("cal-ne-lon").value = c.ne?.lon ?? "";
+            document.getElementById("cal-se-lat").value = c.se?.lat ?? "";
+            document.getElementById("cal-se-lon").value = c.se?.lon ?? "";
+            document.getElementById("cal-sw-lat").value = c.sw?.lat ?? "";
+            document.getElementById("cal-sw-lon").value = c.sw?.lon ?? "";
+            document.getElementById("cal-spacing").value = cal.spacing_rules?.large_canopy_min_m ?? 6;
+            document.getElementById("calibration-modal").style.display = "flex";
+        } catch (e) {
+            this.notify(`Could not load calibration: ${e.message}`, "error", 7000);
+        }
+    },
+    closeCalibrationModal() { document.getElementById("calibration-modal").style.display = "none"; },
+
+    async saveCalibration(ev) {
+        ev.preventDefault();
+        if (!ApiService.getNgoPassword()) { this.openAuthModal(); return; }
+        const num = (id) => parseFloat(document.getElementById(id).value);
+        const payload = {
+            corners: {
+                nw: { lat: num("cal-nw-lat"), lon: num("cal-nw-lon") },
+                ne: { lat: num("cal-ne-lat"), lon: num("cal-ne-lon") },
+                se: { lat: num("cal-se-lat"), lon: num("cal-se-lon") },
+                sw: { lat: num("cal-sw-lat"), lon: num("cal-sw-lon") },
+            },
+            grid: { rows: 20, cols: 20 },
+            cell_side_m: 3.048,
+            spacing_rules: { large_canopy_min_m: num("cal-spacing") || 6.0 },
+            updated_at: new Date().toISOString().slice(0, 10),
+        };
+        try {
+            await ApiService.updateComplianceCalibration(payload);
+            this.notify("Calibration saved. Reloading audit…");
+            this.closeCalibrationModal();
+            await this.loadCompliance();
+        } catch (e) {
+            this.notify(`Could not save calibration: ${e.message}`, "error", 7000);
+        }
     },
 
     toggleWeatherPill(ev) {

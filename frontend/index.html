@@ -16,10 +16,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
     <!-- Verdant theme — minimal / performant / cache-busted -->
-    <link rel="stylesheet" href="css/theme-verdant.css?v=p17">
+    <link rel="stylesheet" href="css/theme-verdant.css?v=p18">
 
     <!-- Legacy base styles (stripped of blurs & infinite animations) -->
-    <link rel="stylesheet" href="css/styles.css?v=p17">
+    <link rel="stylesheet" href="css/styles.css?v=p18">
 
     <!-- Chart.js & Leaflet JS CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -70,6 +70,11 @@
             <li class="nav-item">
                 <button data-tab="verify">
                     <span>✅</span> Verify
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="compliance">
+                    <span>🗺️</span> Plan Compliance
                 </button>
             </li>
             <li class="nav-item">
@@ -415,6 +420,50 @@
 
             <div class="note-card" style="margin-top:1rem">
                 <strong>Shortcuts:</strong> <kbd>C</kbd> confirms the current scientific name · <kbd>X</kbd> opens the correct-species picker · <kbd>R</kbd> flags for later · <kbd>→</kbd> skip without saving · <kbd>←</kbd> go back one. Clicking the photo opens it full-size.
+            </div>
+        </section>
+
+        <!-- PLAN COMPLIANCE TAB — Sacred Grove 20x20 grid audit -->
+        <section id="tab-compliance" class="tab-pane">
+            <div class="section-header">
+                <div>
+                    <h2>Plan Compliance</h2>
+                    <p>Comparing every planted record on site against the Devrai Foundation master plan (a 20 × 20 grid of 10 ft cells on a 1-acre plot). Cells coloured by status.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="App.loadCompliance()">↻ Refresh</button>
+                    <button class="btn-primary btn-blue" onclick="App.openCalibrationModal()">⚙ Calibrate plot corners</button>
+                    <button class="btn-primary btn-amber" onclick="App.exportComplianceCsv()">📥 Export CSV</button>
+                </div>
+            </div>
+
+            <div class="kpi-grid" id="compliance-kpis">
+                <div class="kpi-card loading-text">Loading audit…</div>
+            </div>
+
+            <div class="panel" style="margin-top:1rem">
+                <div class="panel-header">
+                    <h3>Grid status · 20 × 20</h3>
+                    <span class="panel-tag"><span class="legend-sw correct"></span> correct · <span class="legend-sw wrong"></span> wrong · <span class="legend-sw missing"></span> missing · <span class="legend-sw void"></span> hut/water/path</span>
+                </div>
+                <div id="compliance-grid" class="plan-grid"></div>
+            </div>
+
+            <div class="panel" style="margin-top:1rem">
+                <div class="panel-header"><h3>Mismatches &amp; misplaced plants</h3><span class="panel-tag" id="compliance-mismatch-count">—</span></div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Status</th><th>Plant</th><th>What's there</th><th>What should be there</th><th>Cell</th><th>Should be in</th></tr>
+                        </thead>
+                        <tbody id="compliance-mismatch-body"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top:1rem">
+                <div class="panel-header"><h3>Spacing warnings · two large trees closer than 6 m</h3><span class="panel-tag" id="compliance-spacing-count">—</span></div>
+                <div id="compliance-spacing-body"><div class="muted" style="padding:0.5rem">Loading…</div></div>
             </div>
         </section>
 
@@ -988,6 +1037,38 @@
     </div>
 </div>
 
+<!-- CALIBRATION MODAL (admin) -->
+<div id="calibration-modal" class="modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="calibration-title">
+    <div class="modal-card" style="max-width:620px">
+        <div class="modal-header">
+            <h3 id="calibration-title">⚙ Plot corner calibration</h3>
+            <button class="modal-close" aria-label="Close" onclick="App.closeCalibrationModal()">×</button>
+        </div>
+        <p class="modal-intro">Set the GPS of the four corners of the 1-acre Sacred Grove plot. Cell 1 is the NW corner (top-left of the plan); cell 400 is the SE corner. The audit uses this to work out which cell each planted plant falls in.</p>
+        <form id="calibration-form" onsubmit="App.saveCalibration(event)">
+            <div class="form-grid-2">
+                <div class="form-group"><label>NW latitude</label><input type="number" step="any" id="cal-nw-lat" required></div>
+                <div class="form-group"><label>NW longitude</label><input type="number" step="any" id="cal-nw-lon" required></div>
+                <div class="form-group"><label>NE latitude</label><input type="number" step="any" id="cal-ne-lat" required></div>
+                <div class="form-group"><label>NE longitude</label><input type="number" step="any" id="cal-ne-lon" required></div>
+                <div class="form-group"><label>SE latitude</label><input type="number" step="any" id="cal-se-lat" required></div>
+                <div class="form-group"><label>SE longitude</label><input type="number" step="any" id="cal-se-lon" required></div>
+                <div class="form-group"><label>SW latitude</label><input type="number" step="any" id="cal-sw-lat" required></div>
+                <div class="form-group"><label>SW longitude</label><input type="number" step="any" id="cal-sw-lon" required></div>
+            </div>
+            <div class="form-group">
+                <label>Large-canopy spacing minimum (metres)</label>
+                <input type="number" step="0.5" min="1" max="30" id="cal-spacing" required>
+                <div class="form-hint" style="margin-top:0.25rem">Default 6 m (20 ft). Any two trees tagged as "large canopy" closer than this fire a spacing warning.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-action" onclick="App.closeCalibrationModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Save calibration</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- BULK UPLOAD MODAL -->
 <div id="bulk-upload-modal" class="modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="bulk-upload-title">
     <div class="modal-card modal-wide" style="max-width:900px">
@@ -1015,9 +1096,9 @@
 <script src="js/config.local.js" onerror="void 0"></script>
 
 <!-- Frontend JavaScript Modules -->
-<script src="js/config.js?v=p17"></script>
-<script src="js/api.js?v=p17"></script>
-<script src="js/app.js?v=p17b"></script>
+<script src="js/config.js?v=p18"></script>
+<script src="js/api.js?v=p18"></script>
+<script src="js/app.js?v=p18"></script>
 
 </body>
 </html>

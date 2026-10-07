@@ -413,6 +413,20 @@ class ApiService {
     static getVerificationQueue(limit = 50) {
         return this.fetchJson(window.APP_CONFIG.getEndpoint(`/analytics/verification-queue?limit=${limit}`));
     }
+    // Compliance (Sacred Grove master plan)
+    static getComplianceGrid()    { return this.fetchJson(window.APP_CONFIG.getEndpoint('/compliance/grid')); }
+    static getComplianceHeatmap() { return this.fetchJson(window.APP_CONFIG.getEndpoint('/compliance/heatmap')); }
+    static getComplianceAudit()   { return this.fetchJson(window.APP_CONFIG.getEndpoint('/compliance/audit')); }
+    static getComplianceSpacingWarnings() { return this.fetchJson(window.APP_CONFIG.getEndpoint('/compliance/spacing-warnings')); }
+    static getComplianceCalibration() { return this.fetchJson(window.APP_CONFIG.getEndpoint('/compliance/calibration')); }
+    static updateComplianceCalibration(payload) {
+        return this.fetchJson(window.APP_CONFIG.getEndpoint('/compliance/calibration'), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    }
+
     static async bulkUploadPhotos(files, { allowNearbyDuplicate = false } = {}) {
         const fd = new FormData();
         for (const f of files) fd.append('files', f);
