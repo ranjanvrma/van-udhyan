@@ -2241,7 +2241,7 @@ const App = {
         const timeEl = document.getElementById("clock-time");
         if (!dateEl || !timeEl) return;
         const fmtDate = new Intl.DateTimeFormat("en-IN", { weekday: "short", month: "short", day: "numeric", timeZone: "Asia/Kolkata" });
-        const fmtTime = new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: "Asia/Kolkata" });
+        const fmtTime = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true, timeZone: "Asia/Kolkata" });
         const tick = () => {
             const now = new Date();
             dateEl.textContent = fmtDate.format(now);
