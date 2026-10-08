@@ -174,6 +174,9 @@ async def bulk_upload_photos(
     if len(files) > 50:
         raise HTTPException(status_code=413, detail="At most 50 files per batch")
 
+    import logging as _logging
+    _log = _logging.getLogger("van-udyan.upload")
+
     results = []
     for f in files:
         name = f.filename or "unnamed.jpg"
@@ -181,7 +184,8 @@ async def bulk_upload_photos(
         try:
             contents = await f.read()
         except Exception as read_err:
-            results.append({"filename": name, "ok": False, "error": f"Could not read upload: {read_err}"})
+            _log.warning("bulk-upload read failed for %r: %s", name, read_err)
+            results.append({"filename": name, "ok": False, "status": "error", "error": "Could not read upload."})
             continue
         try:
             res = DataService.process_photo_upload(
@@ -193,9 +197,13 @@ async def bulk_upload_photos(
         except DuplicateObservationError as de:
             results.append({"filename": name, "ok": False, "status": "duplicate", "duplicate": de.to_detail()})
         except ValueError as ve:
+            # ValueError messages here are the result of our own validators
+            # (file-type / size / boundary / dedup) — safe to surface to the UI.
             results.append({"filename": name, "ok": False, "status": "rejected", "error": str(ve)})
         except Exception as ue:  # noqa: BLE001
-            results.append({"filename": name, "ok": False, "status": "error", "error": str(ue)})
+            # Everything else: log server-side, never leak the exception to the client.
+            _log.exception("bulk-upload unexpected failure for %r: %s", name, ue)
+            results.append({"filename": name, "ok": False, "status": "error", "error": "Upload failed."})
 
     summary = {
         "total": len(files),

@@ -19,6 +19,20 @@ services:
     region: singapore                # closest free region to India
     healthCheckPath: /ready
     envVars:
+      # Mark this instance as production so the backend enforces its hardened
+      # defaults (no docs, no default admin password, HSTS, HTTPS CORS only,
+      # trusts X-Forwarded-Proto / X-Forwarded-For from Render's edge).
+      - key: ENVIRONMENT
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      # Rate-limit knobs (defaults are sensible; override only when needed).
+      - key: AUTH_RATE_LIMIT_PER_MINUTE
+        value: "20"
+      - key: MUTATION_RATE_LIMIT_PER_MINUTE
+        value: "120"
+      - key: MAX_REQUEST_BODY_BYTES
+        value: "16777216"
       # Database — point this at your Supabase connection string
       - key: DATABASE_URL
         sync: false

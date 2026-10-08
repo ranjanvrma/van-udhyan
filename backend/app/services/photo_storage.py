@@ -115,7 +115,14 @@ def write_bytes(name: str, data: bytes, content_type: str = "image/jpeg") -> str
         with _session_lock:
             resp = _session.post(_supabase_object_url(name), data=data, headers=headers, timeout=60)
         if resp.status_code not in (200, 201):
-            raise RuntimeError(f"Supabase Storage upload failed ({resp.status_code}): {resp.text[:200]}")
+            # Log the remote detail server-side; never surface the raw response
+            # body to callers (it can include backend URLs or diagnostic info).
+            import logging as _lg
+            _lg.getLogger("van-udyan.photo_storage").warning(
+                "Supabase upload failed (status=%s len=%s)",
+                resp.status_code, len(resp.content or b""),
+            )
+            raise RuntimeError(f"Photo storage upload failed (status {resp.status_code})")
     return f"/uploads/{name}"
 
 

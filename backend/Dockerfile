@@ -43,6 +43,14 @@ ENV UPLOADS_DIR=/app/data/uploads \
     THUMBS_DIR=/app/data/uploads_thumbs \
     PORT=8000
 
+# Run as an unprivileged user. Only grant write access where the application
+# actually writes (uploads, thumbnails, logs); the rest of /app stays read-only
+# as far as the runtime is concerned.
+RUN groupadd --system --gid 1001 vanudyan \
+ && useradd --system --uid 1001 --gid 1001 --home-dir /app --shell /usr/sbin/nologin vanudyan \
+ && chown -R vanudyan:vanudyan /app/data/uploads /app/data/uploads_thumbs /app/logs
+USER vanudyan
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
