@@ -34,10 +34,10 @@
     --v-alive: #3F7627;
     --v-alive-bright: #4F9433;
 
-    /* Text ramp — Apple-like neutral grey */
+    /* Text ramp — tuned for 4.5:1+ contrast on white */
     --v-text: #1D1D1F;
-    --v-text-dim: #5F6360;
-    --v-text-faint: #949B96;
+    --v-text-dim: #4B5056;      /* was #5F6360 — too light on white panels */
+    --v-text-faint: #6E7580;
     --v-text-ink: #1D1D1F;
 
     /* Borders — hairline, barely-there */
@@ -99,6 +99,13 @@ html body {
    Those were fixed-position radial-gradient layers that forced repaint
    on every scroll — invisible benefit, measurable cost. */
 html body::before, html body::after { content: none !important; display: none !important; }
+
+/* Override legacy helper classes from styles.css that used dark-theme
+   token values (text-muted / text-faint / text-bright pointed at
+   dark-theme greys that are illegible on this white theme). */
+html body .muted { color: var(--v-text-dim) !important; }
+html body .faint { color: var(--v-text-faint) !important; }
+html body .text-bright, html body [class*="text-bright"] { color: var(--v-text) !important; }
 
 /* App shell — stack vertically (RSWF uses a top nav, not a sidebar) */
 html body .app-container {
@@ -477,6 +484,7 @@ html body .kpi-card {
     justify-content: center;
 }
 html body .kpi-card.clickable { cursor: pointer; }
+html body .kpi-card::before, html body .kpi-card::after { content: none; }  /* no decorative pseudo-icons */
 
 html body .kpi-label {
     font-size: 0.76rem;
@@ -518,22 +526,24 @@ html body .chart-title {
 }
 html body .chart-subtitle { font-size: 0.8rem; color: var(--v-text-dim); margin-bottom: 1rem; }
 
-html body .panel { padding: 1.3rem 1.5rem; margin-bottom: 1.25rem; }
+html body .panel { padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; }
+html body .panel-header { margin-bottom: 1.25rem; align-items: center; }
 html body .panel-header h3 {
     font-weight: 700;
     font-size: 1.1rem;
     color: var(--v-text);
+    letter-spacing: -0.01em;
 }
 html body .panel-tag {
-    font-family: var(--v-font-mono);
-    font-size: 0.7rem;
+    font-family: var(--v-font);
+    font-size: 0.72rem;
     font-weight: 500;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
     color: var(--v-text-dim);
-    background: rgba(0, 0, 0, 0.04);
-    padding: 0.3rem 0.65rem;
+    background: #F5F5F7;
+    padding: 0.3rem 0.75rem;
     border-radius: var(--v-r-pill);
-    border: 1px solid var(--v-stroke);
+    border: none;
 }
 
 html body .zone-card {
@@ -571,66 +581,109 @@ html body .export-card h3 {
     color: var(--v-text);
 }
 
-/* Note card */
+/* Note / callout card — soft stone background with full-contrast dark text */
 html body .note-card {
-    background: rgba(63, 118, 39, 0.06);
+    background: #F5F5F7;
     border: 1px solid var(--v-stroke);
     border-left: 3px solid var(--v-leaf);
     border-radius: var(--v-r-md);
-    padding: 0.9rem 1.15rem;
-    font-size: 0.86rem;
-    color: var(--v-text-dim);
+    padding: 1rem 1.2rem;
+    font-size: 0.9rem;
+    color: var(--v-text);               /* readable near-black */
     line-height: 1.55;
 }
+html body .note-card b, html body .note-card strong { color: var(--v-text); font-weight: 600; }
 
-/* Action cards */
+/* Action cards (Areas Requiring Action) — soft neutral surface, dark text */
 html body .action-card {
-    background: var(--v-ink-3);
+    background: #F5F5F7;
     border: 1px solid var(--v-stroke);
     border-left: 3px solid var(--v-leaf);
     border-radius: var(--v-r-md);
-    padding: 0.9rem 1rem;
-    transition: background 150ms ease, border-color 150ms ease;
+    padding: 1.1rem 1.2rem;
+    transition: background 150ms ease, transform 150ms ease;
+    color: var(--v-text);
 }
-html body .action-card:hover { background: var(--v-surface); border-color: var(--v-stroke-strong); }
-html body .action-card-head b { font-weight: 700; color: var(--v-text); }
+html body .action-card:hover { background: #EEEDF0; transform: translateY(-1px); }
+html body .action-card .action-card-head b { font-weight: 700; color: var(--v-text); font-size: 0.95rem; }
+html body .action-card p { color: var(--v-text) !important; font-size: 0.88rem !important; line-height: 1.55 !important; margin-bottom: 0.75rem !important; }
+html body .action-card b { color: var(--v-text); }
+/* The 'Suggested action:' inset box inside each action card */
+html body .action-card .action-do {
+    background: rgba(63, 118, 39, 0.1) !important;
+    color: var(--v-text) !important;
+    border-radius: 8px !important;
+    padding: 0.7rem 0.85rem !important;
+    font-size: 0.86rem !important;
+    line-height: 1.55 !important;
+}
+html body .action-card .action-do b { color: var(--v-leaf-deep) !important; font-weight: 700; }
+html body .action-card .pill { font-weight: 600; }
 
 /* ------------------------------------------------------------------
-   BUTTONS
+   BUTTONS — one coherent system, RSWF palette (green primary +
+   semantic variants). No more gold/blue/purple/orange rainbow.
 ------------------------------------------------------------------- */
 html body .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.65rem 1.4rem;
+    padding: 0.7rem 1.4rem;
     border-radius: var(--v-r-pill);
-    border: none;
+    border: 1.5px solid transparent;
     font-family: var(--v-font);
-    font-weight: 700;
-    font-size: 0.86rem;
-    letter-spacing: 0.01em;
-    color: #1D1D1F;
-    background: var(--v-grad-leaf);
+    font-weight: 600;
+    font-size: 0.88rem;
+    letter-spacing: 0.005em;
+    color: #FFFFFF;
+    background: var(--v-leaf);
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(63, 118, 39, 0.3), 0 1px 2px rgba(0, 0, 0, 0.08);
-    transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease, color 160ms ease, border-color 160ms ease;
 }
-html body .btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 6px 14px rgba(63, 118, 39, 0.45), 0 2px 4px rgba(0,0,0,0.08); }
-html body .btn-primary:active { transform: translateY(0); filter: brightness(0.95); }
-html body .btn-primary.btn-blue  { background: var(--v-grad-mist);  color: #FFFFFF; box-shadow: 0 2px 6px rgba(0, 58, 150, 0.35), 0 1px 2px rgba(0,0,0,0.08); }
-html body .btn-primary.btn-purple{ background: var(--v-grad-dusk);  color: #FFFFFF; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.35), 0 1px 2px rgba(0,0,0,0.08); }
-html body .btn-primary.btn-amber { background: var(--v-grad-ember); color: #FFFFFF; box-shadow: 0 2px 6px rgba(230, 93, 0, 0.35), 0 1px 2px rgba(0,0,0,0.08); }
-html body .btn-primary.btn-blue:hover  { box-shadow: 0 6px 14px rgba(0, 58, 150, 0.5), 0 2px 4px rgba(0,0,0,0.1); }
-html body .btn-primary.btn-purple:hover{ box-shadow: 0 6px 14px rgba(124, 58, 237, 0.5), 0 2px 4px rgba(0,0,0,0.1); }
-html body .btn-primary.btn-amber:hover { box-shadow: 0 6px 14px rgba(230, 93, 0, 0.5), 0 2px 4px rgba(0,0,0,0.1); }
+html body .btn-primary:hover { background: var(--v-leaf-deep); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(63, 118, 39, 0.25); }
+html body .btn-primary:active { transform: translateY(0); background: var(--v-leaf-deep); }
+
+/* Variant: secondary — outline on white */
+html body .btn-primary.btn-blue {
+    background: #FFFFFF;
+    color: var(--v-leaf);
+    border-color: var(--v-leaf);
+    box-shadow: none;
+}
+html body .btn-primary.btn-blue:hover {
+    background: var(--v-leaf);
+    color: #FFFFFF;
+    border-color: var(--v-leaf);
+    box-shadow: 0 4px 10px rgba(63, 118, 39, 0.25);
+}
+
+/* Variant: tertiary — dark pill (used sparingly for alternate CTAs) */
+html body .btn-primary.btn-purple {
+    background: var(--v-text);
+    color: #FFFFFF;
+    border-color: var(--v-text);
+}
+html body .btn-primary.btn-purple:hover { background: #000; border-color: #000; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+
+/* Variant: ghost — mostly invisible outline, hover solidifies */
+html body .btn-primary.btn-amber {
+    background: transparent;
+    color: var(--v-text);
+    border-color: var(--v-stroke);
+    box-shadow: none;
+}
+html body .btn-primary.btn-amber:hover { background: #F5F5F7; border-color: var(--v-text); color: var(--v-text); box-shadow: none; }
+
 html body .btn-primary.btn-small { padding: 0.5rem 1rem; font-size: 0.8rem; }
 html body .btn-block { width: 100%; }
 
+/* .btn-action = inline table-row action chip */
 html body .btn-action {
-    padding: 0.4rem 0.85rem;
+    padding: 0.4rem 0.9rem;
     border-radius: var(--v-r-pill);
-    background: rgba(0, 0, 0, 0.04);
+    background: #FFFFFF;
     border: 1px solid var(--v-stroke);
     color: var(--v-text);
     font-family: var(--v-font);
@@ -641,9 +694,9 @@ html body .btn-action {
     margin-right: 0.3rem;
 }
 html body .btn-action:hover {
-    background: rgba(63, 118, 39, 0.12);
-    color: var(--v-leaf-bright);
-    border-color: var(--v-stroke-strong);
+    background: #F5F5F7;
+    color: var(--v-leaf);
+    border-color: var(--v-leaf);
 }
 html body .btn-action.delete {
     background: rgba(220, 38, 38, 0.08);
@@ -744,20 +797,20 @@ html body .pill, html body .status-badge, html body .id-badge {
     display: inline-block;
     white-space: nowrap;
 }
-html body .pill-green { background: rgba(63, 118, 39, 0.15); color: var(--v-leaf-bright); border: 1px solid rgba(63, 118, 39, 0.3); }
-html body .pill-blue { background: rgba(56, 189, 248, 0.14); color: #7DD3FC; border: 1px solid rgba(56, 189, 248, 0.3); }
-html body .pill-orange { background: rgba(249, 115, 22, 0.14); color: #FDBA74; border: 1px solid rgba(249, 115, 22, 0.3); }
-html body .pill-purple { background: rgba(192, 132, 252, 0.14); color: #DDD6FE; border: 1px solid rgba(192, 132, 252, 0.3); }
-html body .pill-grey { background: rgba(166, 184, 173, 0.1); color: var(--v-text-dim); border: 1px solid var(--v-stroke-dim); }
+html body .pill-green { background: rgba(63, 118, 39, 0.12); color: var(--v-leaf-deep); border: 1px solid rgba(63, 118, 39, 0.35); }
+html body .pill-blue   { background: rgba(0, 136, 203, 0.1);  color: #0369A1; border: 1px solid rgba(0, 136, 203, 0.35); }
+html body .pill-orange { background: rgba(230, 93, 0, 0.1);   color: #B45309; border: 1px solid rgba(230, 93, 0, 0.35); }
+html body .pill-purple { background: rgba(124, 58, 237, 0.1); color: #6D28D9; border: 1px solid rgba(124, 58, 237, 0.35); }
+html body .pill-grey   { background: rgba(0, 0, 0, 0.04);     color: var(--v-text-dim); border: 1px solid var(--v-stroke); }
 
 html body .status-badge.alive { background: rgba(22, 163, 74, 0.14); color: var(--v-alive); border: 1px solid rgba(22, 163, 74, 0.35); }
 html body .status-badge.dead { background: rgba(220, 38, 38, 0.18); color: #FCA5A5; border: 1px solid rgba(220, 38, 38, 0.45); }
 html body .status-badge.unknown { background: rgba(249, 115, 22, 0.18); color: #FDBA74; border: 1px solid rgba(249, 115, 22, 0.45); }
 
 html body .id-badge.verified { background: rgba(22, 163, 74, 0.14); color: var(--v-alive); border: 1px solid rgba(22, 163, 74, 0.35); }
-html body .id-badge.corrected { background: rgba(56, 189, 248, 0.16); color: #BAE6FD; border: 1px solid rgba(56, 189, 248, 0.4); }
-html body .id-badge.ai { background: rgba(192, 132, 252, 0.16); color: #E9D5FF; border: 1px solid rgba(192, 132, 252, 0.4); }
-html body .id-badge.review { background: rgba(245, 158, 11, 0.16); color: #FDE68A; border: 1px solid rgba(245, 158, 11, 0.4); }
+html body .id-badge.corrected { background: rgba(0, 136, 203, 0.1); color: #0369A1; border: 1px solid rgba(0, 136, 203, 0.4); }
+html body .id-badge.ai        { background: rgba(124, 58, 237, 0.1); color: #6D28D9; border: 1px solid rgba(124, 58, 237, 0.4); }
+html body .id-badge.review    { background: rgba(230, 93, 0, 0.1); color: #B45309; border: 1px solid rgba(230, 93, 0, 0.4); }
 html body .id-badge.reference { background: rgba(166, 184, 173, 0.08); color: var(--v-text-dim); border: 1px solid var(--v-stroke-dim); }
 
 html body .zone-text.zone-a { color: var(--v-zone-a); }
