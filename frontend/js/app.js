@@ -626,12 +626,12 @@ const App = {
                         zoneCounts["OUTSIDE_ACTIVE_ZONES"] || 0
                     ],
                     backgroundColor: [
-                        "rgba(16, 185, 129, 0.7)",
-                        "rgba(59, 130, 246, 0.7)",
-                        "rgba(139, 92, 246, 0.7)",
-                        "rgba(249, 115, 22, 0.7)"
+                        "rgba(246, 197, 24, 0.8)",   // RSWF gold
+                        "rgba(0, 136, 203, 0.8)",    // bright blue
+                        "rgba(230, 93, 0, 0.8)",     // orange
+                        "rgba(237, 28, 36, 0.8)"     // red
                     ],
-                    borderColor: ["#10b981", "#3b82f6", "#8b5cf6", "#f97316"],
+                    borderColor: ["#F6C518", "#0088CB", "#E65D00", "#ED1C24"],
                     borderWidth: 1.5
                 }]
             },
@@ -643,8 +643,8 @@ const App = {
                     tooltip: { callbacks: { label: (c) => ` ${c.parsed.y} observations` } }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { color: "#94a3b8", precision: 0 }, grid: { color: "rgba(46,117,89,0.15)" } },
-                    x: { ticks: { color: "#94a3b8" }, grid: { display: false } }
+                    y: { beginAtZero: true, ticks: { color: "#5F6360", precision: 0 }, grid: { color: "rgba(0,0,0,0.06)" } },
+                    x: { ticks: { color: "#5F6360" }, grid: { display: false } }
                 }
             }
         });
@@ -657,7 +657,7 @@ const App = {
         if (this.charts.sourceChart) this.charts.sourceChart.destroy();
 
         const friendly = { "iNaturalist": "iNaturalist (public records)", "NGO / New Upload": "RSWF field uploads" };
-        const colors = { "iNaturalist": "#10b981", "NGO / New Upload": "#f97316" };
+        const colors = { "iNaturalist": "#0088CB", "NGO / New Upload": "#F6C518" };
         const keys = Object.keys(sourceCounts);
         const values = Object.values(sourceCounts);
 
@@ -667,8 +667,8 @@ const App = {
                 labels: keys.map(k => friendly[k] || k),
                 datasets: [{
                     data: values,
-                    backgroundColor: keys.map((k, i) => colors[k] || ["#3b82f6", "#8b5cf6"][i % 2]),
-                    borderColor: "#0c2019",
+                    backgroundColor: keys.map((k, i) => colors[k] || ["#E65D00", "#ED1C24"][i % 2]),
+                    borderColor: "#FFFFFF",
                     borderWidth: 2
                 }]
             },
@@ -677,7 +677,7 @@ const App = {
                 maintainAspectRatio: false,
                 cutout: "58%",
                 plugins: {
-                    legend: { position: "bottom", labels: { color: "#e2e8f0", padding: 16 } },
+                    legend: { position: "bottom", labels: { color: "#1D1D1F", padding: 16 } },
                     tooltip: {
                         callbacks: {
                             label: (c) => {
