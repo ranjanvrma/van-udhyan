@@ -10,16 +10,16 @@
     <!-- Google Fonts: Fraunces (display serif) · Inter (body) · JetBrains Mono (data) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Maitree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     <!-- Leaflet GIS CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
     <!-- Verdant theme — minimal / performant / cache-busted -->
-    <link rel="stylesheet" href="css/theme-verdant.css?v=rswf3">
+    <link rel="stylesheet" href="css/theme-verdant.css?v=p18">
 
     <!-- Legacy base styles (stripped of blurs & infinite animations) -->
-    <link rel="stylesheet" href="css/styles.css?v=rswf3">
+    <link rel="stylesheet" href="css/styles.css?v=p18">
 
     <!-- Chart.js & Leaflet JS CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -29,31 +29,67 @@
 
 <div class="app-container">
 
-    <!-- Top Navigation (RSWF-style horizontal bar) -->
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div class="brand-header">
-            <div class="brand-icon" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C7.5 7 5 11 5 15a7 7 0 0 0 14 0c0-4-2.5-8-7-13zm0 3.6c3.1 3.9 5 7.3 5 9.4a5 5 0 0 1-10 0c0-2.1 1.9-5.5 5-9.4z"/>
-                    <path d="M12 10v9" stroke="currentColor" stroke-width="1.4" fill="none"/>
-                </svg>
-            </div>
-            <div class="brand-title">Van Udyan<span class="brand-subtitle">RSWF</span></div>
+            <div class="brand-icon">🌿</div>
+            <div class="brand-title">Van Udyan<span class="brand-subtitle">Biodiversity Platform · RSWF</span></div>
         </div>
 
         <ul class="nav-list">
-            <li class="nav-item"><button class="active" data-tab="overview">Overview</button></li>
-            <li class="nav-item"><button data-tab="map">Map</button></li>
-            <li class="nav-item"><button data-tab="species">Species</button></li>
-            <li class="nav-item"><button data-tab="observations">Observations</button></li>
-            <li class="nav-item"><button data-tab="zones">Zones</button></li>
-            <li class="nav-item"><button data-tab="watering">Watering</button></li>
-            <li class="nav-item"><button data-tab="verify">Verify</button></li>
-            <li class="nav-item"><button data-tab="compliance">Compliance</button></li>
-            <li class="nav-item"><button data-tab="management">Manage</button></li>
-            <li class="nav-item"><button data-tab="export">Reports</button></li>
+            <li class="nav-item">
+                <button class="active" data-tab="overview">
+                    <span>📊</span> Overview
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="map">
+                    <span>🗺️</span> Biodiversity Map
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="species">
+                    <span>🌱</span> Species
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="observations">
+                    <span>👁️</span> Observations
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="zones">
+                    <span>📐</span> Monitoring Zones
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="watering">
+                    <span>💧</span> Watering
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="verify">
+                    <span>✅</span> Verify
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="compliance">
+                    <span>🗺️</span> Plan Compliance
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="management">
+                    <span>🛠️</span> Manage Plantations
+                </button>
+            </li>
+            <li class="nav-item">
+                <button data-tab="export">
+                    <span>📥</span> Downloads &amp; Reports
+                </button>
+            </li>
         </ul>
 
+        <!-- Data Source Transparency note -->
         <div class="sidebar-footer">
             <strong>Data Source Transparency:</strong><br>
             Public <b>iNaturalist</b> records checked to lie inside Van Udyan, plus RSWF <b>planted plants</b> and <b>field photo uploads</b>. All figures update live from the project database.
@@ -66,8 +102,8 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-title">
-                <h1><span class="accent">Van Udyan</span> Biodiversity Intelligence</h1>
-                <p>Bavdhan, Pune, Maharashtra · Conservation monitoring by <strong>RSWF</strong></p>
+                <h1>Van Udyan Biodiversity Intelligence</h1>
+                <p>Bavdhan, Pune, Maharashtra · Conservation monitoring by RSWF</p>
             </div>
             <div class="header-actions">
                 <!-- Live Bavdhan clock — updates every second -->
@@ -107,12 +143,6 @@
 
         <!-- 1. OVERVIEW TAB PANE -->
         <section id="tab-overview" class="tab-pane active">
-
-            <!-- Impact overline -->
-            <div class="impact-overline">
-                <span class="eyebrow">Our Impact So Far</span>
-                <span class="eyebrow-rule"></span>
-            </div>
 
             <!-- Live KPI Cards -->
             <div class="kpi-grid">
@@ -175,7 +205,7 @@
             <!-- Areas Requiring Action -->
             <div class="panel">
                 <div class="panel-header">
-                    <h3>Areas Requiring Action</h3>
+                    <h3>🌿 Areas Requiring Action</h3>
                     <span class="panel-tag">Suggested from current data</span>
                 </div>
                 <div id="action-priorities-container" class="action-grid">
@@ -185,7 +215,7 @@
 
             <!-- Data coverage note -->
             <div class="note-card">
-                <b>How to read these numbers:</b> <span id="coverage-taxa-count">The</span> recorded species and taxa come from the observations collected so far.
+                🌿 <b>How to read these numbers:</b> <span id="coverage-taxa-count">The</span> recorded species and taxa come from the observations collected so far.
                 Counts show how often something was recorded, not how abundant it is, and areas with no records are gaps in monitoring rather than places without plants.
             </div>
 
@@ -1066,9 +1096,9 @@
 <script src="js/config.local.js" onerror="void 0"></script>
 
 <!-- Frontend JavaScript Modules -->
-<script src="js/config.js?v=rswf2"></script>
-<script src="js/api.js?v=rswf2"></script>
-<script src="js/app.js?v=rswf2"></script>
+<script src="js/config.js?v=p18"></script>
+<script src="js/api.js?v=p18"></script>
+<script src="js/app.js?v=p18"></script>
 
 </body>
 </html>
