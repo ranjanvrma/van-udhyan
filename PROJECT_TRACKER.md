@@ -627,18 +627,114 @@
 
 ---
 
+### Phase 18 — Production Deployment & Live Bug-Fix Pass
+**Date:** 2026-10-05 · **Scope:** Shipped the platform to a live Render deployment and ran a complete end-to-end bug sweep against the deployed frontend + backend.
+
+Deployment stack: FastAPI backend on Render Docker (Singapore region) + Supabase Postgres (PostGIS) + Supabase Storage for photos + static frontend on Render's CDN. `render.yaml` provisions both services from the repo; `backend/Dockerfile` builds a slim-bookworm image with Tesseract preinstalled for the OCR fallback. State sync (`backend/app/services/state_sync.py`) was turned on so NGO stores survive a redeploy on the ephemeral free tier.
+
+Bug-sweep results — 12 issues found and fixed in one commit:
+| # | Severity | Area | Fix |
+|---|---|---|---|
+| 1 | 🔴 | Unlock dialog hit `/api/v1/auth/verify` → 404 | Mounted `/auth/verify` under the `/api/v1` prefix as well |
+| 2 | 🔴 | Monitoring Zones tab stuck after a cold-start fetch failure | Promise.all swallows per-tab failures; Retry button re-runs the current tab |
+| 3 | 🟠 | Broken photo images rendered as text alt | onerror swaps to a `.popup-photo-empty` placeholder |
+| 4 | 🟠 | Add Field Sighting bypassed the 1 m same-plant guard | Added `allow_nearby_duplicate` query param + confirm-dialog override UX |
+| 5 | 🟠 | Admin unlock UX & cached-password handling | Eye toggle + cached password invalidation on 401 |
+| 6 | 🟡 | Stale "Not yet confirmed by RSWF" note after a verify | Verification review strips the phrase |
+| 7 | 🟡 | Plant `zone_code` could disagree with the boundary polygon | Zone always derived from the boundary check |
+| 8 | 🟡 | Watering fields missing in Add/Edit Plant modal | Added watering_interval_days + last_watered_on |
+| 9 | 🟡 | Mobile nav discoverability | Right-edge arrow + fade hint |
+| 10 | 🟡 | Content-Disposition filename clipped by CORS | Exposed via `expose_headers` |
+| 11 | 🔵 | Noisy console errors on 401 | 401s on protected endpoints no longer logged |
+| 12 | 🔵 | Dev test records lingering on prod | Cleaned |
+
+Production URL (live): `https://van-udyan-dashboard.onrender.com` → `https://van-udyan-backend.onrender.com`
+
+---
+
+### Phase 19 — Quality-of-Life Features (Weather, Verify Queue, Species Profiles, Bulk Upload)
+**Date:** 2026-10-05 → 2026-10-07 · **Scope:** Four field-productivity and insight features chosen after a feature-brainstorm with the mentor.
+
+- **Weather pill** in the top header (every tab) — direct browser fetch to Open-Meteo (CORS-open, no key), floating popover with current conditions + 7-day rainfall bars + 3-day forecast + auto-pause callout when ≥5 mm fell in 24h. Backend was briefly a proxy, then removed once we discovered Render was blocking the backend's outbound HTTPS to the API — moving the fetch to the browser dodged the restriction entirely and eliminated a backend dependency.
+- **Live header clock** — IST wall clock updating every second, formatted `Tue, Oct 7 · 10:21:09 PM`; aligned to the whole-second boundary so digits don't jitter.
+- **Verification queue (`#verify` tab)** — Tinder-style card stack of unverified field uploads; keyboard shortcuts `C` confirm · `X` correct · `R` needs-review · `→` skip · `←` prev. Prefetches 50 at a time via `/analytics/verification-queue`. Clears a 50-item backlog in ~5 minutes.
+- **Per-species profile modal** — click any row in the Species tab → modal with rarity badge, zone distribution pills, phenology bar chart (sightings per calendar month), first/last-seen, planted count, and a direct Wikipedia link. Backed by `/analytics/species-profile`.
+- **Bulk photo dropzone** — new `📂 Bulk Upload` button on Manage Plantations opens a drag-drop modal; up to 50 files/batch. Each file runs the full EXIF/GPS/boundary/dedup/1 m guard pipeline. Returns a per-file status grid (saved / needs-confirmation / duplicate / rejected / error). Backend endpoint: `/observations/bulk-upload`.
+- **Perf-tuning pass** — removed every always-on animation and nearly every `backdrop-filter`, cut the ambient particle canvas, slashed cards' shadow stacks and transitions, dropped the fixed body gradient. Result: the dashboard scrolls smoothly at 120 Hz on mid-range laptops. Removed ~1300 lines of CSS from theme-verdant and the legacy "Premium Glass" layer in styles.css.
+
+**Three features that were briefly shipped and then removed on scope-trim** (reverted in commit 86cc263): biodiversity indices (Shannon / Simpson / Pielou), public landing page at `/visit`, and 3D terrain view with MapLibre + Terrarium DEM. Code and endpoints removed; concept notes retained in `docs/` for future revival.
+
+---
+
+### Phase 20 — Devrai Master-Plan Compliance (Grid Audit)
+**Date:** 2026-10-07 · **Scope:** Audit tool comparing every planted plant on site against the Devrai Foundation's prescribed master plan.
+
+Inputs ingested from the mentor:
+- **Devrai Model v7 PDF** — a 20×20 grid of 10 ft × 10 ft cells (400 cells, 1 acre) with each cell tagged with a 2-letter species acronym.
+- **Sacred Grove Plant List v2 XLSX** — 115 species / 515 individuals, scientific + Marathi + acronym + grid-number assignments.
+
+Pipeline:
+1. Parsed the messy XLSX "Grid Number" column (`43.44.63..64`, `129.132..149.152`) into `data/processed/grid_cells.json` — the authoritative cell → prescribed species table (364 cells assigned, 36 reserved for the bamboo hut, water body, pathways, entrance). Resolved 2-letter acronym collisions (`AL` was used by 4 species, `AR` by 2) using grid position.
+2. Hand-curated `data/processed/grid_species.json` — 115-species catalogue with large/small canopy classification (used by the spacing-warnings check).
+3. `data/processed/grid_calibration.json` — the four corner GPS of the physical plot + grid dims + spacing rules. Defaults to a 61 m × 61 m square at the Van Udyan centroid; mentor overrides via the UI modal.
+
+Backend (`backend/app/services/compliance_service.py` + `backend/app/api/v1/compliance.py`):
+- `cell_for_point(lat, lon)` — axis-aligned GPS → cell 1-400 using the calibrated rectangle.
+- `audit_all()` — per-plant status: ✅ correct · 🔄 misplaced_species (right species, wrong cell) · ❌ wrong_species · ⚪ empty_cell · ⚫ non_plantable_cell · outside_plot.
+- `heatmap()` — 400-cell colour status payload for the UI grid.
+- `spacing_warnings()` — nearest-neighbour sweep over every pair of large-canopy plants; haversine distance < 6 m (default, configurable via calibration) flags a warning.
+- Admin-only `PUT /compliance/calibration` so the mentor can paste the four surveyed corners once and recompute everything.
+
+Frontend (`#compliance` tab):
+- KPI row (planted total, correct, wrong/misplaced, outside plot).
+- 20×20 CSS-grid heatmap, hover shows cell number + prescribed + actual + status.
+- Mismatch table listing every wrong-species / misplaced plant with the cells it should've been in.
+- Spacing warnings panel listing each too-close pair with its exact metre distance.
+- CSV export of the full audit for printable field use.
+- Calibration modal for the mentor's one-time corner-GPS setup.
+
+---
+
+### Phase 21 — Backend Security Hardening Pass
+**Date:** 2026-10-09 · **Scope:** Full senior-security-engineer audit against the 20-area OWASP checklist, followed by implementation of every code-level and configuration-level fix found.
+
+Hardening implemented (details in `backend/app/core/*` + commit `db46411`):
+- **Config invariants.** New `ENVIRONMENT` setting; in production `NGO_ADMIN_PASSWORD` must be set, non-default, and ≥12 chars (backend refuses to start otherwise). CORS rejects `*` and plain-HTTP origins, drops the localhost defaults, and no longer silently fails open.
+- **In-process rate limiter** (`core/rate_limit.py`) — zero-dependency sliding-window counter, keyed by client IP + bucket (auth vs mutation). Honours `X-Forwarded-For` only when `TRUST_PROXY=true`. Default 20 req/min on `/auth/verify`, 120 req/min on every admin-protected mutation.
+- **Timing side-channels closed.** `hmac.compare_digest` now runs unconditionally even when the header is empty; both failures return the identical body `{"detail": "Unauthorized."}` — no missing-vs-wrong-password enumeration.
+- **Request body size cap.** `RequestBodySizeLimitMiddleware` rejects any request whose declared `Content-Length` exceeds `MAX_REQUEST_BODY_BYTES` (default 16 MB) before any body is read.
+- **Docs locked down.** `/docs`, `/redoc`, `/openapi.json` are off by default in production; `ENABLE_DOCS=true` for a short-lived debug window.
+- **Content-Security-Policy** added (`default-src 'none'; frame-ancestors 'none'; base-uri 'none'`). The policy opens to Swagger CDN only when docs are explicitly on.
+- **HSTS `preload`**, `Cross-Origin-Resource-Policy`, expanded `Permissions-Policy`, and `Cache-Control: no-store` + `Pragma: no-cache` on `/auth/*` paths.
+- **Error-leak cleanup.** Global exception handler returns generic `500` in production (stack trace stays in the server log); bulk-upload per-file errors no longer surface raw Python exception text; Supabase upload failures no longer embed the remote response body.
+- **Structured security logger** (`core/security_logging.py`) emits `auth_success`, `auth_failure`, `rate_limit_block` events with IP + path, scrubs any field whose name hints at a secret.
+- **Dockerfile non-root.** Dedicated `vanudyan` uid 1001 user; writable dirs explicitly chown'd.
+- **Security test suite** (`backend/tests/test_security.py`, 12 new tests) covering actual attack-pattern behaviour: unified-401 body, per-key rate-limiter blocking, security headers on every response, no-store on `/auth/*`, 413 on oversize `Content-Length`, upload MIME/extension refusal, path traversal in `/thumbs`, and production config failing fast on default/missing/short password / wildcard-CORS / plain-HTTP CORS / docs on.
+
+Final self-rated security score: **B — Mostly production ready**. The remaining risks are operator / infra (log aggregation, Supabase PITR + restore drill, dependency scanning in CI, decision on multi-user accounts) and documented in the audit report.
+
+---
+
+### Phase 22 — Final Polish & Tracker Update
+**Date:** 2026-10-09 · **Scope:** Project tracker brought current (this file), tiny code tidy-up, cache versions bumped so the latest JS/CSS is served on the next page load. No new features; no regressions.
+
+---
+
 ## 🎯 Final Project Status & Remaining Roadmap
 
 ### 1. COMPLETED ENGINEERING
-- Complete FastAPI backend, PostgreSQL/PostGIS spatial architecture, WGS84 GIS maps, species catalog, observation search, planted plant management with condition monitoring history, photo storage pipeline (EXIF + Image Geotag GPS detection), Pl@ntNet AI integration with human verification, dataset exports, and dynamic conservation PDF reporting.
+- **Backend** — FastAPI on Python 3.11, PostgreSQL/PostGIS, SQLAlchemy ORM, Supabase Storage for photos, Pl@ntNet REST integration, EXIF + OCR geotag extraction, content-addressed photo filenames with SHA-256 + perceptual-hash dedup, 1 m same-plant guard, monsoon-aware watering reminders, Postgres-backed state sync for ephemeral hosts, structured security logging, in-process rate limiter, request-size cap middleware, production-safe config invariants (phases 1-21).
+- **Frontend** — Vanilla HTML + CSS + JS SPA, hash-routed tabs (Overview · Map · Species · Observations · Zones · Watering · Verify · Compliance · Manage · Reports), Leaflet GIS, Chart.js analytics, floating weather popover with live Open-Meteo data, live IST clock, verification queue with keyboard shortcuts, per-species profile modal with phenology chart, bulk photo dropzone, Plan Compliance 20×20 heatmap, calibration modal, data-source transparency note.
+- **Analytics & reporting** — Observation search with multi-source filters, species catalogue, action-priority recommendations, dataset CSV + GeoJSON exports, Conservation PDF, SDG PDF.
+- **Compliance tool** — Devrai master-plan ingestion, GPS → grid-cell mapping, per-plant audit, spacing warnings, CSV export, admin calibration.
+- **Security** — Shared-secret admin auth with timing-safe compare, unified unauthorized response, per-IP rate limits on auth + mutations, security-header middleware (CSP, HSTS, nosniff, DENY frames, Referrer, Permissions, CORP, no-store on /auth), body-size cap, non-root Docker user, secure error handling.
+- **Deployment** — Live on Render.com (backend Docker + static-site frontend) backed by Supabase Postgres + Storage. `render.yaml` configures env vars; `.env.example` documents every setting.
 
-### 2. EXACT REMAINING IMPLEMENTATION ACTIVITIES
-Following this engineering completion phase, the **ONLY** remaining implementation activities before final handover are:
-
-1. **GENUINE NGO DATASET INTEGRATION**
-   - Ingest genuine RSWF field records, planted trees, field sightings, photographs, and condition monitoring logs when delivered by RSWF.
-2. **FINAL DEPLOYMENT**
-   - Deploy backend, database, and frontend to production/staging hosting environment.
+### 2. REMAINING / RECOMMENDED OPERATOR TASKS
+1. **GENUINE NGO DATASET MIGRATION** — When RSWF delivers the authoritative field records + plant catalogue + photographs, run the bulk-upload pipeline + the state-sync migration script. The platform already runs on seeded development data; swapping to the real dataset is a one-session operator task.
+2. **PLOT CORNER SURVEY** — Walk the four corners of the 1-acre Sacred Grove plot with a handheld GPS, enter the readings into the Plan Compliance calibration modal. Until this is done, cell assignments are approximate (defaulted to the Van Udyan centroid).
+3. **OPERATIONAL HARDENING** — Point Render logs at an external aggregator and alert on `event=auth_failure` bursts / `event=rate_limit_block`. Enable Supabase PITR and run one restore drill. Enable Dependabot / `pip-audit` in CI.
+4. **MULTI-USER AUTH (optional future)** — Replace the single shared admin password with per-user accounts if RSWF scales beyond one field team.
 
 ---
 

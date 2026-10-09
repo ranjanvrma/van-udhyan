@@ -2516,38 +2516,35 @@ Status: ${c.status}`;
         }
     },
 
-    toggleWeatherPill(ev) {
-        if (ev) ev.stopPropagation();
+    _setWeatherPopOpen(open) {
         const btn = document.getElementById("header-weather");
         const pop = document.getElementById("weather-pop");
         if (!btn || !pop) return;
-        const open = pop.classList.toggle("open");
-        btn.setAttribute("aria-expanded", open ? "true" : "false");
-        pop.setAttribute("aria-hidden", open ? "false" : "true");
-        if (open && !this._weatherOutsideBound) {
-            this._weatherOutsideBound = true;
-            document.addEventListener("click", (e) => {
+        pop.classList.toggle("open", open);
+        btn.setAttribute("aria-expanded", String(open));
+        pop.setAttribute("aria-hidden", String(!open));
+    },
+
+    toggleWeatherPill(ev) {
+        if (ev) ev.stopPropagation();
+        const pop = document.getElementById("weather-pop");
+        if (!pop) return;
+        this._setWeatherPopOpen(!pop.classList.contains("open"));
+        if (this._weatherOutsideBound) return;
+        this._weatherOutsideBound = true;
+        document.addEventListener("click", (e) => {
+            const p = document.getElementById("weather-pop");
+            const b = document.getElementById("header-weather");
+            if (p && p.classList.contains("open") && !p.contains(e.target) && !(b && b.contains(e.target))) {
+                this._setWeatherPopOpen(false);
+            }
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
                 const p = document.getElementById("weather-pop");
-                const b = document.getElementById("header-weather");
-                if (!p || !b) return;
-                if (p.classList.contains("open") && !p.contains(e.target) && !b.contains(e.target)) {
-                    p.classList.remove("open");
-                    b.setAttribute("aria-expanded", "false");
-                    p.setAttribute("aria-hidden", "true");
-                }
-            });
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") {
-                    const p = document.getElementById("weather-pop");
-                    const b = document.getElementById("header-weather");
-                    if (p && p.classList.contains("open")) {
-                        p.classList.remove("open");
-                        b.setAttribute("aria-expanded", "false");
-                        p.setAttribute("aria-hidden", "true");
-                    }
-                }
-            });
-        }
+                if (p && p.classList.contains("open")) this._setWeatherPopOpen(false);
+            }
+        });
     },
 
     // --- Verification queue with keyboard shortcuts ---
